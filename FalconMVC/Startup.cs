@@ -1,6 +1,10 @@
+using FalconMVC.Models;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -23,6 +27,18 @@ namespace FalconMVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<DbFalcon>(options =>
+            options.UseSqlServer(Configuration.GetConnectionString("FalconConnection")));
+            services.AddIdentity<User, IdentityRole>(opts =>
+            {
+                opts.User.RequireUniqueEmail = true;
+            })
+                            .AddEntityFrameworkStores<DbFalcon>();
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options => //CookieAuthenticationOptions
+                {
+                    options.LoginPath = new Microsoft.AspNetCore.Http.PathString("/Registration/Login");
+                });
             services.AddControllersWithViews();
         }
 
@@ -43,7 +59,7 @@ namespace FalconMVC
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
