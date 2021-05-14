@@ -8,5 +8,7 @@ namespace FalconMVC.Models
 {
     public class User : IdentityUser
     {
+        public string FName { get; set; }
+        public string LName { get; set; }
     }
 }
