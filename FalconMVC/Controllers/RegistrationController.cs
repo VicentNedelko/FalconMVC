@@ -23,6 +23,44 @@ namespace FalconMVC.Controllers
         {
             return View();
         }
+        [HttpPost]
+        public async Task<IActionResult> LogInAsync(LoginViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = _userManager.Users.FirstOrDefault(u => u.Email == model.Email);
+                if(user is not null)
+                {
+                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, false, false);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        return Content("SignIn failed. Try again.");
+                    }
+                }
+                else
+                {
+                    return Content("Error! User NOT found.");
+                }
+            }
+            else
+            {
+                return Content("Error! Model is NOT valid. Email or Password required.");
+            }
+        }
+
+        [HttpGet]
+        public IActionResult LogOff()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                _signInManager.SignOutAsync();
+            }
+            return RedirectToAction("Index", "Home");
+        }
 
         [HttpGet]
         public IActionResult AddUser()
