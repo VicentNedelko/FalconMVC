@@ -30,13 +30,33 @@
                         <td>@i.IndividualAddress</td>
                         <td>@i.MacAddress</td>
                         <td>
-                            <input type="radio" value="no" name="checkInterface"/>
+                            <input type="radio" value=@i.IpAddress.ToString() name="checkInterface" id=@i.IpAddress.ToString() onchange="GetInterfaceIP(@i.IpAddress.ToString())"/>
                         </td>
                     </tr>    
                 }
                 
             </tbody>
         </table><br />
+    </div><br />
+    <div>
+        <p id="activeInterface" hidden="hidden">Active interface : <label id="activeInterfaceName"></label></p>
+    </div><br />
+    <div>
+        <button id="sendIpToServer" type="submit">
+            Submit Interface
+        </button>
     </div>
 </form>
+
+<script type="text/javascript">
+    function GetInterfaceIP(id)
+    {
+        var interface = document.getElementById(id);
+        if (interface.checked)
+        {
+            document.getElementById('activeInterface').style.visibility = true;
+            document.getElementById('activeInterfaceName').nodeValue = id;
+        }
+    }
+</script>
 
