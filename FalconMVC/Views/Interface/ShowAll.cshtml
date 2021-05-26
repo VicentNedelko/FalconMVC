@@ -1,0 +1,42 @@
+﻿@using Knx.Bus.Common.KnxIp
+@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+@model DiscoveryResult[]
+
+<h5>Interfaces list :</h5><br />
+<form asp-controller="Interface" asp-action="ShowAll">
+    <div asp-validation-summary="All"></div>
+    <div>
+        <table align="left" border="1">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>IP Address</th>
+                    <th>Individual Address</th>
+                    <th>MAC</th>
+                    <th>Use it ?</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach(var i in Model)
+                {
+                    <tr>
+                        <td>@i.FriendlyName</td>
+                        <td>@i.IpAddress</td>
+                        <td>@i.IndividualAddress</td>
+                        <td>@i.MacAddress</td>
+                        <td>
+                            <input type="radio" value="no" name="checkInterface"/>
+                        </td>
+                    </tr>    
+                }
+                
+            </tbody>
+        </table><br />
+    </div>
+</form>
+
