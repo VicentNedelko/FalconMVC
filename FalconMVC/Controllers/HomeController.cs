@@ -11,6 +11,7 @@ namespace FalconMVC.Controllers
 {
     public class HomeController : Controller
     {
+        public static string InterfaceIP { get; set; } = "Undefined";
         private readonly ILogger<HomeController> _logger;
 
         public HomeController(ILogger<HomeController> logger)

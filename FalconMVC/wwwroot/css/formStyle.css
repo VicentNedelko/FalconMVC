@@ -1,0 +1,9 @@
+﻿.btn_submit {
+    text-align: center;
+    color:black;
+}
+
+.interface_table{
+    position: relative;
+    display: flex;
+}

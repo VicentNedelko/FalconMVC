@@ -5,12 +5,13 @@
 @{
 }
 
+
 @model DiscoveryResult[]
 
 <h5>Interfaces list :</h5><br />
-<form asp-controller="Interface" asp-action="ShowAll">
+<form asp-controller="Interface" asp-action="ShowAll" method="get">
     <div asp-validation-summary="All"></div>
-    <div>
+    <div class="interface_table">
         <table align="left" border="1">
             <thead>
                 <tr>
@@ -30,7 +31,7 @@
                         <td>@i.IndividualAddress</td>
                         <td>@i.MacAddress</td>
                         <td>
-                            <input type="radio" value=@i.IpAddress.ToString() name="checkInterface" id=@i.IpAddress.ToString() onchange="GetInterfaceIP(@i.IpAddress.ToString())"/>
+                            <input type="radio" value=@i.IpAddress.ToString() name="checkInterface"  id=@i.IpAddress.ToString() onchange="javascript: GetInterfaceIP(this)"/> 
                         </td>
                     </tr>    
                 }
@@ -38,24 +39,26 @@
             </tbody>
         </table><br />
     </div><br />
+</form>
+<form asp-controller="Interface" asp-action="ShowAll" method="post">
     <div>
-        <p id="activeInterface" hidden="hidden">Active interface : <label id="activeInterfaceName"></label></p>
+        <p id="activeInterface" style="visibility: collapse">
+            Active interface : <input name="interfaceIP" id="activeInterfaceName" disabled placeholder="192.168.5.1">
+        </p>
     </div><br />
     <div>
-        <button id="sendIpToServer" type="submit">
-            Submit Interface
-        </button>
+        <input type="submit" class="btn_submit" name="sendIpToServer" value="Submit"/>
     </div>
 </form>
 
 <script type="text/javascript">
-    function GetInterfaceIP(id)
+    function GetInterfaceIP(interfaceRadio)
     {
-        var interface = document.getElementById(id);
-        if (interface.checked)
+        if (interfaceRadio.checked)
         {
-            document.getElementById('activeInterface').style.visibility = true;
-            document.getElementById('activeInterfaceName').nodeValue = id;
+            document.getElementById('activeInterface').style.visibility = 'visible';
+            document.getElementById('activeInterfaceName').value = interfaceRadio.value;
+            document.getElementbyId('sendIpToServer').disabled = false;
         }
     }
 </script>
