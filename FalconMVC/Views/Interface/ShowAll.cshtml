@@ -5,9 +5,6 @@
 @{
 }
 
-
-@model DiscoveryResult[]
-
 <h5>Interfaces list :</h5><br />
 <form asp-controller="Interface" asp-action="ShowAll" method="get">
     <div asp-validation-summary="All"></div>
@@ -23,7 +20,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach(var i in Model)
+                @foreach(var i in ViewBag.Interfaces)
                 {
                     <tr>
                         <td>@i.FriendlyName</td>
@@ -39,16 +36,18 @@
             </tbody>
         </table><br />
     </div><br />
+   
 </form>
-<form asp-controller="Interface" asp-action="ShowAll" method="post">
+<form asp-controller="Interface" asp-action="BusConnect" method="post">
     <div>
         <p id="activeInterface" style="visibility: collapse">
             Active interface : <input name="interfaceIP" id="activeInterfaceName" disabled placeholder="192.168.5.1">
         </p>
     </div><br />
     <div>
-        <input type="submit" class="btn_submit" name="sendIpToServer" value="Submit"/>
+        <input type="submit" value="Submit" />
     </div>
+
 </form>
 
 <script type="text/javascript">

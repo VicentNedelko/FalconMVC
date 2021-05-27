@@ -14,7 +14,8 @@ namespace FalconMVC.Controllers
         [HttpGet]
         public IActionResult ShowAll()
         {
-            return View(GetInterfacesList());
+            ViewBag.Interfaces = GetInterfacesList();
+            return View();
         }
         [HttpPost]
         public IActionResult ShowAll(string interfaceIP)
