@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h6>GA Archive manager</h6>
+<form asp-controller="GroupAddress" asp-action="AddArchive">
+    <div>
+        <label>
+            GA (_/_/_) - <input name="addGA" type="text"/>
+        </label>
+    </div>
+    <div>
+        <label>GA Types - </label>
+        <input list="types" placeholder="Enter GA Type"/>
+        <datalist id="types">
+            <option value="Temperature"></option>
+            <option value="Switch"></option>
+            <option value="Percent"></option>
+        </datalist>
+    </div>
+    <input type="submit" value="Add GA" />
+</form>
+<textarea style="" class="archive_window" placeholder="Archive data" disabled>
+    
+</textarea>

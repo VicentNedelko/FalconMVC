@@ -23,18 +23,18 @@
                         <ul class="navbar-nav flex-grow-1">
 
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                <a class="nav-link text-dark" asp-controller="Home" asp-action="Index">Home</a>
                             </li>
                             @{if (User.Identity.IsAuthenticated)
                                 {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Interface" asp-action="ShowAll">Interfaces</a>
+                                <a class="nav-link text-dark" asp-controller="Interface" asp-action="ShowAll">Interfaces</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-area="" asp-controller="GroupAddress" asp-action="Index">Group Address</a>
+                                <a class="nav-link text-dark" asp-controller="GroupAddress" asp-action="Index">Group Address</a>
                             </li>
                             <li>
-                                <a class="nav-link text-dark" asp-area="" asp-controller="Registration" asp-action="LogOff">LogOff</a>
+                                <a class="nav-link text-dark" asp-controller="Registration" asp-action="LogOff">LogOff</a>
                             </li>
                             <li class="navbar-brand">
                                 <p>User : @User.Identity.Name</p>

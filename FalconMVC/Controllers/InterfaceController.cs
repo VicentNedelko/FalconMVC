@@ -18,7 +18,7 @@ namespace FalconMVC.Controllers
             return View();
         }
         [HttpPost]
-        public IActionResult ShowAll(string interfaceIP)
+        public IActionResult ShowAll (string interfaceIP)
         {
             using (Bus bus = new(new KnxIpTunnelingConnectorParameters(interfaceIP, 0x0e57, false)))
             {

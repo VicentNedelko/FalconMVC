@@ -5,9 +5,8 @@
 @{
 }
 
+<form asp-controller="Interface" asp-action="ShowAll">
 <h5>Interfaces list :</h5><br />
-<form asp-controller="Interface" asp-action="ShowAll" method="get">
-    <div asp-validation-summary="All"></div>
     <div class="interface_table">
         <table align="left" border="1">
             <thead>
@@ -36,19 +35,17 @@
             </tbody>
         </table><br />
     </div><br />
-   
-</form>
-<form asp-controller="Interface" asp-action="BusConnect" method="post">
+
     <div>
-        <p id="activeInterface" style="visibility: collapse">
-            Active interface : <input name="interfaceIP" id="activeInterfaceName" disabled placeholder="192.168.5.1">
-        </p>
+        <label id="activeInterface" style="visibility : collapse">
+            Active interface : <input type="text" name="interfaceIP" id="activeInterfaceName" placeholder="192.168.5.1">
+        </label>
     </div><br />
     <div>
         <input type="submit" value="Submit" />
     </div>
+    </form>
 
-</form>
 
 <script type="text/javascript">
     function GetInterfaceIP(interfaceRadio)

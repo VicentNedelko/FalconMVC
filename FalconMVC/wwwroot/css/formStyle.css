@@ -7,3 +7,11 @@
     position: relative;
     display: flex;
 }
+
+.archive_window{
+    margin-top: 100px;
+    position: relative;
+    display: flex;
+    width: 1000px;
+    height: 500px;
+}
