@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Knx.Bus.Common;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,6 +17,26 @@ namespace FalconMVC.Controllers
         public IActionResult AddArchive()
         {
             return View();
+        }
+        [HttpPost]
+        public IActionResult AddArchive(string addGA)
+        {
+            if (addGA is not null)
+            {
+                //_ = new GroupAddress();
+                GroupAddress addressToArchive;
+                if (GroupAddress.TryParse(addGA, out addressToArchive))
+                {
+                    ArchivGA(addressToArchive);
+                }
+
+            }
+            return Content("Empty");
+        }
+
+        public void ArchivGA(GroupAddress address)
+        {
+
         }
     }
 }
