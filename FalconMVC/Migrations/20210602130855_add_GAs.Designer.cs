@@ -4,14 +4,16 @@ using FalconMVC.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace FalconMVC.Migrations
 {
     [DbContext(typeof(DbFalcon))]
-    partial class DbFalconModelSnapshot : ModelSnapshot
+    [Migration("20210602130855_add_GAs")]
+    partial class add_GAs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,9 +29,6 @@ namespace FalconMVC.Migrations
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
                     b.Property<string>("GAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");

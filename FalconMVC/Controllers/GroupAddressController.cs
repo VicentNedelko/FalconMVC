@@ -1,5 +1,7 @@
-﻿using Knx.Bus.Common;
+﻿using FalconMVC.Models;
+using Knx.Bus.Common;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,12 @@ namespace FalconMVC.Controllers
 {
     public class GroupAddressController : Controller
     {
+        private readonly DbFalcon _dbFalcon;
+        public GroupAddressController(DbFalcon dbFalcon)
+        {
+            _dbFalcon = dbFalcon;
+        }
+
         public IActionResult Index()
         {
             return View();
@@ -16,22 +24,27 @@ namespace FalconMVC.Controllers
         [HttpGet]
         public IActionResult AddArchive()
         {
-            return View();
+            return View(_dbFalcon.GAs.ToArray());
         }
         [HttpPost]
-        public IActionResult AddArchive(string addGA)
+        public async Task<IActionResult> AddArchiveAsync(string addGA)
         {
-            if (addGA is not null)
+            if (addGA is not null && !_dbFalcon.GAs.Any(g => g.GAddress == addGA))
             {
-                //_ = new GroupAddress();
-                GroupAddress addressToArchive;
-                if (GroupAddress.TryParse(addGA, out addressToArchive))
+                var result = _dbFalcon.GAs.AddAsync(
+                    new GA
                 {
-                    ArchivGA(addressToArchive);
+                    GAddress = addGA,
+                });
+                if (result.IsCompletedSuccessfully)
+                {
+                    await _dbFalcon.SaveChangesAsync();
+                    var listGA = await _dbFalcon.GAs.ToArrayAsync();
+                    return RedirectToAction("AddArchive", "GroupAddress", listGA);
                 }
-
+                return Content("Error! Entity NOT added.");
             }
-            return Content("Empty");
+            return Content("GA is null or also exist.");
         }
 
         public void ArchivGA(GroupAddress address)
