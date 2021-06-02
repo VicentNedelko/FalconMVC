@@ -2,6 +2,7 @@
 using Knx.Bus.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,38 +12,57 @@ namespace FalconMVC.Controllers
 {
     public class GroupAddressController : Controller
     {
-        private readonly DbFalcon _dbFalcon;
-        public GroupAddressController(DbFalcon dbFalcon)
+        public IList<GA> _groupAddressList;
+        public GroupAddressController()
         {
-            _dbFalcon = dbFalcon;
+            _groupAddressList = new List<GA>();
         }
 
+        [HttpGet]
         public IActionResult Index()
         {
             return View();
         }
+
         [HttpGet]
         public IActionResult AddArchive()
         {
-            return View(_dbFalcon.GAs.ToArray());
-        }
-        [HttpPost]
-        public async Task<IActionResult> AddArchiveAsync(string addGA)
-        {
-            if (addGA is not null && !_dbFalcon.GAs.Any(g => g.GAddress == addGA))
+            List<GA> tempList;
+            try
             {
-                var result = _dbFalcon.GAs.AddAsync(
+                tempList = JsonConvert.DeserializeObject<List<GA>>((string)TempData["listGA"]);
+            }
+            catch(ArgumentNullException)
+            {
+                tempList = new List<GA>();
+            }
+            ViewBag.ListGA = tempList;
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult AddArchive(string addGA, string typeGA)
+        {
+            List<GA> tempList;
+            try
+            {
+                tempList = JsonConvert.DeserializeObject<List<GA>>((string)TempData["listGA"]);
+            }
+            catch(ArgumentNullException)
+            {
+                tempList = new List<GA>();
+            }
+            
+            if (addGA is not null && !tempList.Any(ga => ga.GAddress == addGA))
+            {
+                tempList.Add(
                     new GA
                 {
                     GAddress = addGA,
+                    GType = typeGA,
                 });
-                if (result.IsCompletedSuccessfully)
-                {
-                    await _dbFalcon.SaveChangesAsync();
-                    var listGA = await _dbFalcon.GAs.ToArrayAsync();
-                    return RedirectToAction("AddArchive", "GroupAddress", listGA);
-                }
-                return Content("Error! Entity NOT added.");
+                TempData["listGA"] = JsonConvert.SerializeObject(tempList);
+                return RedirectToAction("AddArchive", "GroupAddress");
             }
             return Content("GA is null or also exist.");
         }

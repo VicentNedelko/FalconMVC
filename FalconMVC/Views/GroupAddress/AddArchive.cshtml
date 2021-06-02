@@ -2,7 +2,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-@model IEnumerable<GA>
 
 <h6>GA Archive manager</h6>
 <form asp-controller="GroupAddress" asp-action="AddArchive">
@@ -13,7 +12,7 @@
     </div>
     <div>
         <label>GA Types - </label>
-        <input list="types" placeholder="Enter GA Type"/>
+        <input list="types" name="typeGA" placeholder="Enter GA Type"/>
         <datalist id="types">
             <option value="Temperature"></option>
             <option value="Switch"></option>
@@ -22,10 +21,13 @@
     </div><br />
     <input type="submit" value="Add GA" />
 </form><br />
-<fieldset disabled>
-<legend>Archive of GA</legend>
-    @foreach(var ga in Model)
-    {
-        <p>@ga.Id - @ga.GAddress</p>;
-    }
-</fieldset>
+       <fieldset disabled>
+           <legend>GA List</legend>
+           @{
+
+                   foreach (var ga in ViewBag.ListGA)
+                   {
+                       <p>@ga.GAddress - @ga.GType</p>;
+                   }
+               }
+       </fieldset>

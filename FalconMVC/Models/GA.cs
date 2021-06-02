@@ -7,8 +7,7 @@ namespace FalconMVC.Models
 {
     public class GA
     {
-        public int Id { get; set; }
         public string GAddress { get; set; }
-        public string Type { get; set; }
+        public string GType { get; set; }
     }
 }

@@ -9,7 +9,7 @@ namespace FalconMVC.Models
 {
     public class DbFalcon : IdentityDbContext<User>
     {
-        public DbSet<GA> GAs { get; set; }
+
         public DbFalcon(DbContextOptions<DbFalcon> options) : base (options)
         {
         }
