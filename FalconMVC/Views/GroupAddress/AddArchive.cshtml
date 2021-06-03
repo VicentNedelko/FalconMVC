@@ -1,13 +1,13 @@
 ﻿@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
+@model List<GA>
 
 <h6>GA Archive manager</h6>
 <form asp-controller="GroupAddress" asp-action="AddArchive">
     <div>
         <label>
-            GA (_/_/_) - <input name="addGA" type="text"/>
+            GA (_/_/_) - <input name="nameGA" type="text"/>
         </label>
     </div>
     <div>
@@ -19,15 +19,18 @@
             <option value="Percent"></option>
         </datalist>
     </div><br />
-    <input type="submit" value="Add GA" />
+    <input type="submit" value="Start" />
 </form><br />
-       <fieldset disabled>
-           <legend>GA List</legend>
-           @{
-
-                   foreach (var ga in ViewBag.ListGA)
-                   {
-                       <p>@ga.GAddress - @ga.GType</p>;
-                   }
-               }
-       </fieldset>
+<fieldset disabled>
+    <legend>GA List</legend>
+    @{
+        if (Model.Count() != 0)
+        {
+            foreach (var ga in Model)
+            {
+                <p>@ga.GAddress - @ga.GType</p>
+        ;
+            }
+        }
+    }
+</fieldset>

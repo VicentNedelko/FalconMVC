@@ -6,16 +6,19 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace FalconMVC.Controllers
 {
     public class GroupAddressController : Controller
     {
-        public IList<GA> _groupAddressList;
-        public GroupAddressController()
+        private readonly DbFalcon _dbFalcon;
+        private Regex regex =
+            new Regex(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
+        public GroupAddressController(DbFalcon dbFalcon)
         {
-            _groupAddressList = new List<GA>();
+            _dbFalcon = dbFalcon;
         }
 
         [HttpGet]
@@ -25,46 +28,29 @@ namespace FalconMVC.Controllers
         }
 
         [HttpGet]
-        public IActionResult AddArchive()
+        public async Task<IActionResult> AddArchiveAsync()
         {
-            List<GA> tempList;
-            try
-            {
-                tempList = JsonConvert.DeserializeObject<List<GA>>((string)TempData["listGA"]);
-            }
-            catch(ArgumentNullException)
-            {
-                tempList = new List<GA>();
-            }
-            ViewBag.ListGA = tempList;
-            return View();
+            return View(await _dbFalcon.GAs.ToListAsync());
         }
 
         [HttpPost]
-        public IActionResult AddArchive(string addGA, string typeGA)
+        public async Task<IActionResult> AddArchiveAsync(string nameGA, string typeGA)
         {
-            List<GA> tempList;
-            try
+            if(nameGA is not null && !_dbFalcon.GAs.Any(ga => ga.GAddress == nameGA))
             {
-                tempList = JsonConvert.DeserializeObject<List<GA>>((string)TempData["listGA"]);
-            }
-            catch(ArgumentNullException)
-            {
-                tempList = new List<GA>();
-            }
-            
-            if (addGA is not null && !tempList.Any(ga => ga.GAddress == addGA))
-            {
-                tempList.Add(
-                    new GA
+                if (regex.IsMatch(nameGA))
                 {
-                    GAddress = addGA,
-                    GType = typeGA,
-                });
-                TempData["listGA"] = JsonConvert.SerializeObject(tempList);
-                return RedirectToAction("AddArchive", "GroupAddress");
-            }
-            return Content("GA is null or also exist.");
+                    var result = await _dbFalcon.GAs.AddAsync(new GA { GAddress = nameGA, GType = typeGA });
+                    if (result.State == EntityState.Added)
+                    {
+                        await _dbFalcon.SaveChangesAsync();
+                        return View(await _dbFalcon.GAs.ToListAsync());
+                    }
+                }
+                ViewBag.Error = "GA doesn't correspond the pattern.";
+                return View("Error");
+            };
+            return Content("GA is also exist or equal to null.");
         }
 
         public void ArchivGA(GroupAddress address)
