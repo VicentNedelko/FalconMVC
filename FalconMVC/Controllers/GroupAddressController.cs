@@ -50,7 +50,31 @@ namespace FalconMVC.Controllers
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";
                 return View("Error");
             };
-            return Content("GA is also exist or equal to null.");
+            return Content("GA is also exist or equals to null.");
+        }
+
+        public async Task<IActionResult> Remove(int id)
+        {
+            var GAToRemove = await _dbFalcon.GAs.FindAsync(id);
+            if(GAToRemove is not null)
+            {
+                var result = _dbFalcon.GAs.Remove(GAToRemove);
+                if (result.State == EntityState.Deleted)
+                {
+                    await _dbFalcon.SaveChangesAsync();
+                    return RedirectToAction("AddArchive", "GroupAddress");
+                }
+                else
+                {
+                    ViewBag.Error = "DB error.";
+                    return View("Error");
+                }
+            }
+            else
+            {
+                ViewBag.Error = "GA is NULL. Reason : GA didn't find id DB or wrong ID.";
+                return View("Error");
+            }
         }
 
         public void ArchivGA(GroupAddress address)

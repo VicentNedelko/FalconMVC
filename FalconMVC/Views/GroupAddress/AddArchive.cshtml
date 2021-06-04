@@ -19,18 +19,43 @@
             <option value="Percent"></option>
         </datalist>
     </div><br />
-    <input type="submit" value="Start" />
+    <input type="submit" value="Add GA" /><br />
 </form><br />
 <fieldset disabled>
-    <legend>GA List</legend>
+    <legend>GA List for monitoring</legend>
     @{
         if (Model.Count() != 0)
         {
             foreach (var ga in Model)
             {
-                <p>@ga.GAddress - @ga.GType</p>
-        ;
+                <p>@ga.Id .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-id="@ga.Id">Remove</a></p>
             }
+            <br />
+
         }
     }
-</fieldset>
+</fieldset><br />
+<div>
+    @if(Model.Count() != 0)
+    {
+        <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; color: blue">Start</button><button name="Stop" id="Stop" hidden style="color: red; font-size: 20px" onclick="javascript:StopMonitor();">Stop</button>
+    }
+</div>
+            
+
+
+<script type="text/javascript">
+    function StartMonitor()
+    {
+        document.getElementById('Start').hidden = true;
+        document.getElementById('Stop').hidden = false;
+        @*document.location = '@Url.Action("StartMonitor","GroupAddress")';*@
+    }
+
+    function StopMonitor()
+    {
+        document.getElementById('Start').hidden = false;
+        document.getElementById('Stop').hidden = true;
+        @*document.location = '@Url.Action("StopMonitor","GroupAddress")';*@
+    }
+</script>

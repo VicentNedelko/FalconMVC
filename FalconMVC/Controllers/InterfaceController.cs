@@ -6,11 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using FalconMVC.Managers;
 
 namespace FalconMVC.Controllers
 {
     public class InterfaceController : Controller
     {
+        private readonly IInterfaceConnect _knxInterface;
+        public InterfaceController(IInterfaceConnect knxInterface)
+        {
+            _knxInterface = knxInterface;
+        }
+
         [HttpGet]
         public IActionResult ShowAll()
         {
@@ -20,14 +27,9 @@ namespace FalconMVC.Controllers
         [HttpPost]
         public IActionResult ShowAll (string interfaceIP)
         {
-            using (Bus bus = new(new KnxIpTunnelingConnectorParameters(interfaceIP, 0x0e57, false)))
+            if (_knxInterface.CheckConnection(interfaceIP))
             {
-                bus.Connect();
-                if(bus.CheckCommunication() == Knx.Bus.Common.CheckCommunicationResult.Ok)
-                {
-                    var connection = bus.GetLocalConfiguration();
-                    return Content($"Communication established - {connection.Address}");
-                }
+                return Content($"Communication established - {interfaceIP}");
             }
             return RedirectToAction("Index", "Home");
         }

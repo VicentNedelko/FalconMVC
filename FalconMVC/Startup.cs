@@ -1,3 +1,4 @@
+using FalconMVC.Managers;
 using FalconMVC.Models;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
@@ -27,6 +28,7 @@ namespace FalconMVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<IInterfaceConnect, KnxIpInterface>();
             services.AddDbContext<DbFalcon>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("FalconConnection")));
             services.AddIdentity<User, IdentityRole>(opts =>

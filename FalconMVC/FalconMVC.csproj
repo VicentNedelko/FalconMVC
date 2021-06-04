@@ -16,7 +16,6 @@
 
   <ItemGroup>
     <Folder Include="Globals\" />
-    <Folder Include="Managers\" />
   </ItemGroup>
 
 </Project>
