@@ -10,7 +10,7 @@ namespace FalconMVC.Managers
 {
     public class KnxIpInterface : IInterfaceConnect
     {
-        private readonly Bus _bus;
+        public Bus bus { get; set; } // use Discovery method as setter
         public KnxIpInterface()
         {
             int i = 0;
@@ -21,7 +21,7 @@ namespace FalconMVC.Managers
                 if(results[i].MediumType == Knx.Bus.Common.MediumTypes.Tp)
                 {
                     var ip = results[i].IpAddress;
-                    _bus = new Bus(new KnxIpTunnelingConnectorParameters(ip.ToString(), 0x0e57, false));
+                    bus = new Bus(new KnxIpTunnelingConnectorParameters(ip.ToString(), 0x0e57, false));
                     break;
                 }
                 i++;
@@ -29,10 +29,10 @@ namespace FalconMVC.Managers
         }
         public bool CheckConnection(string interfaceIP)
         {
-            using (_bus)
+            using (bus)
             {
-                _bus.Connect();
-                if (_bus.CheckCommunication() == Knx.Bus.Common.CheckCommunicationResult.Ok)
+                bus.Connect();
+                if (bus.CheckCommunication() == Knx.Bus.Common.CheckCommunicationResult.Ok)
                 {
                     return true;
                 }

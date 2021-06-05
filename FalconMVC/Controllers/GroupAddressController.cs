@@ -1,4 +1,5 @@
-﻿using FalconMVC.Models;
+﻿using FalconMVC.Managers;
+using FalconMVC.Models;
 using Knx.Bus.Common;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,11 +15,14 @@ namespace FalconMVC.Controllers
     public class GroupAddressController : Controller
     {
         private readonly DbFalcon _dbFalcon;
+        private readonly IInterfaceConnect _connection;
+
         private readonly Regex _regex =
             new Regex(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
-        public GroupAddressController(DbFalcon dbFalcon)
+        public GroupAddressController(DbFalcon dbFalcon, IInterfaceConnect connection)
         {
             _dbFalcon = dbFalcon;
+            _connection = connection;
         }
 
         [HttpGet]
@@ -75,6 +79,17 @@ namespace FalconMVC.Controllers
                 ViewBag.Error = "GA is NULL. Reason : GA didn't find id DB or wrong ID.";
                 return View("Error");
             }
+        }
+
+        public IActionResult StartMonitor()
+        {
+            _connection.bus.Connect();
+            _connection.bus.ReadValue("1/1/1");
+        }
+
+        public IActionResult StopMonitor()
+        {
+
         }
 
         public void ArchivGA(GroupAddress address)

@@ -7,5 +7,7 @@ namespace FalconMVC.Managers
 {
     public interface IMonitor
     {
+        public void Start();
+        public void Stop();
     }
 }
