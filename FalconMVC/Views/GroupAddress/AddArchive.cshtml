@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @model List<GA>
-<body onload="javascript: SetDefaultState()">
+<body onload="javascript: SetDefaultState();">
 <h6>GA Archive manager</h6>
 <form asp-controller="GroupAddress" asp-action="AddArchive">
     <div>
@@ -42,30 +42,6 @@
     }
 </div>
 
-<script type="text/javascript">
-    function SetButtonState()
-    {
-        var state = localStorage("monitorState");
-        if(state == null)
-        {
-            document.getElementById('Start').hidden = false;
-            document.getElementById('Stop').hidden = true;
-            localStorage.setItem("monitorState", "stop");
-        }
-        else if(state == "start")
-        {
-            document.getElementById('Start').hidden = true;
-            document.getElementById('Stop').hidden = false;
-            localStorage.setItem("monitorState", "start");
-        }
-        else
-        {
-            document.getElementById('Start').hidden = false;
-            document.getElementById('Stop').hidden = true;
-        }
-    }
-</script>
-
 </body>
 
             
@@ -74,6 +50,7 @@
 <script type="text/javascript">
     function StartMonitor()
     {
+        alert('Start monitor');
         document.getElementById('Start').hidden = true;
         document.getElementById('Stop').hidden = false;
         localStorage.setItem("monitorState", "start");
@@ -90,7 +67,25 @@
 
     function SetDefaultState()
     {
-        localStorage.setItem("monitorState", "stop");
+        alert('Set Default: STOP');
+        var state = localStorage.getItem("monitorState");
+        if (state === null) {
+            alert('NULL');
+            document.getElementById('Start').hidden = false;
+            document.getElementById('Stop').hidden = true;
+            localStorage.setItem("monitorState", "stop");
+        }
+        else if (state == "start") {
+            alert('START');
+            document.getElementById('Start').hidden = true;
+            document.getElementById('Stop').hidden = false;
+            localStorage.setItem("monitorState", "start");
+        }
+        else {
+            alert('STOP');
+            document.getElementById('Start').hidden = false;
+            document.getElementById('Stop').hidden = true;
+        }
     }
 
     
