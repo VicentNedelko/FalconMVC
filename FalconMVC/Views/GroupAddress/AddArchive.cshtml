@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @model List<GA>
-
+<body onload="javascript: SetDefaultState()">
 <h6>GA Archive manager</h6>
 <form asp-controller="GroupAddress" asp-action="AddArchive">
     <div>
@@ -38,9 +38,36 @@
 <div>
     @if(Model.Count() != 0)
     {
-        <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; color: blue">Start</button><button name="Stop" id="Stop" hidden style="color: red; font-size: 20px" onclick="javascript:StopMonitor();">Stop</button>
+        <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; color: blue">Start</button><button name="Stop" id="Stop" style="color: red; font-size: 20px" onclick="javascript:StopMonitor();">Stop</button>
     }
 </div>
+
+<script type="text/javascript">
+    function SetButtonState()
+    {
+        var state = localStorage("monitorState");
+        if(state == null)
+        {
+            document.getElementById('Start').hidden = false;
+            document.getElementById('Stop').hidden = true;
+            localStorage.setItem("monitorState", "stop");
+        }
+        else if(state == "start")
+        {
+            document.getElementById('Start').hidden = true;
+            document.getElementById('Stop').hidden = false;
+            localStorage.setItem("monitorState", "start");
+        }
+        else
+        {
+            document.getElementById('Start').hidden = false;
+            document.getElementById('Stop').hidden = true;
+        }
+    }
+</script>
+
+</body>
+
             
 
 
@@ -49,13 +76,22 @@
     {
         document.getElementById('Start').hidden = true;
         document.getElementById('Stop').hidden = false;
-        document.location = '@Url.Action("StartMonitor","GroupAddress")';
+        localStorage.setItem("monitorState", "start");
+@*        document.location = '@Url.Action("StartMonitor","GroupAddress")';*@
     }
 
     function StopMonitor()
     {
         document.getElementById('Start').hidden = false;
         document.getElementById('Stop').hidden = true;
-        document.location = '@Url.Action("StopMonitor","GroupAddress")';
+        localStorage.setItem("monitorState", "stop");
+@*        document.location = '@Url.Action("StopMonitor","GroupAddress")';*@
     }
+
+    function SetDefaultState()
+    {
+        localStorage.setItem("monitorState", "stop");
+    }
+
+    
 </script>

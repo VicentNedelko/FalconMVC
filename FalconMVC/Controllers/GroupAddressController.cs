@@ -81,19 +81,16 @@ namespace FalconMVC.Controllers
             }
         }
 
-        public void StartMonitor()
+        public IActionResult StartMonitor()
         {
             _monitor.Start();
+            return RedirectToAction("AddArhive");
         }
 
-        public void StopMonitor()
+        public IActionResult StopMonitor()
         {
             _monitor.Stop();
-        }
-
-        public void ArchivGA(GroupAddress address)
-        {
-
+            return RedirectToAction("AddArchive");
         }
     }
 }
