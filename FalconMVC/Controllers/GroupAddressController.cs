@@ -15,14 +15,14 @@ namespace FalconMVC.Controllers
     public class GroupAddressController : Controller
     {
         private readonly DbFalcon _dbFalcon;
-        private readonly IInterfaceConnect _connection;
+        private readonly IMonitor _monitor;
 
         private readonly Regex _regex =
             new Regex(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
-        public GroupAddressController(DbFalcon dbFalcon, IInterfaceConnect connection)
+        public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor)
         {
             _dbFalcon = dbFalcon;
-            _connection = connection;
+            _monitor = monitor;
         }
 
         [HttpGet]
@@ -76,20 +76,19 @@ namespace FalconMVC.Controllers
             }
             else
             {
-                ViewBag.Error = "GA is NULL. Reason : GA didn't find id DB or wrong ID.";
+                ViewBag.Error = "GA is NULL. Reason : GA didn't find ID in DB or wrong ID.";
                 return View("Error");
             }
         }
 
-        public IActionResult StartMonitor()
+        public void StartMonitor()
         {
-            _connection.bus.Connect();
-            _connection.bus.ReadValue("1/1/1");
+            _monitor.Start();
         }
 
-        public IActionResult StopMonitor()
+        public void StopMonitor()
         {
-
+            _monitor.Stop();
         }
 
         public void ArchivGA(GroupAddress address)

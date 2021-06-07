@@ -49,13 +49,13 @@
     {
         document.getElementById('Start').hidden = true;
         document.getElementById('Stop').hidden = false;
-        @*document.location = '@Url.Action("StartMonitor","GroupAddress")';*@
+        document.location = '@Url.Action("StartMonitor","GroupAddress")';
     }
 
     function StopMonitor()
     {
         document.getElementById('Start').hidden = false;
         document.getElementById('Stop').hidden = true;
-        @*document.location = '@Url.Action("StopMonitor","GroupAddress")';*@
+        document.location = '@Url.Action("StopMonitor","GroupAddress")';
     }
 </script>
