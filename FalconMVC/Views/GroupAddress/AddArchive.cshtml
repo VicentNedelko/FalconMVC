@@ -54,7 +54,7 @@
         document.getElementById('Start').hidden = true;
         document.getElementById('Stop').hidden = false;
         localStorage.setItem("monitorState", "start");
-@*        document.location = '@Url.Action("StartMonitor","GroupAddress")';*@
+        document.location = '@Url.Action("StartMonitor","GroupAddress")';
     }
 
     function StopMonitor()
@@ -62,12 +62,11 @@
         document.getElementById('Start').hidden = false;
         document.getElementById('Stop').hidden = true;
         localStorage.setItem("monitorState", "stop");
-@*        document.location = '@Url.Action("StopMonitor","GroupAddress")';*@
+        document.location = '@Url.Action("StopMonitor","GroupAddress")';
     }
 
     function SetDefaultState()
     {
-        alert('Set Default: STOP');
         var state = localStorage.getItem("monitorState");
         if (state === null) {
             alert('NULL');
@@ -76,13 +75,11 @@
             localStorage.setItem("monitorState", "stop");
         }
         else if (state == "start") {
-            alert('START');
             document.getElementById('Start').hidden = true;
             document.getElementById('Stop').hidden = false;
             localStorage.setItem("monitorState", "start");
         }
         else {
-            alert('STOP');
             document.getElementById('Start').hidden = false;
             document.getElementById('Stop').hidden = true;
         }

@@ -44,7 +44,7 @@ namespace FalconMVC.Controllers
             {
                 if (_regex.IsMatch(nameGA))
                 {
-                    var result = await _dbFalcon.GAs.AddAsync(new GA { GAddress = nameGA, GType = typeGA });
+                    var result = await _dbFalcon.GAs.AddAsync(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
                     if (result.State == EntityState.Added)
                     {
                         await _dbFalcon.SaveChangesAsync();
@@ -84,7 +84,7 @@ namespace FalconMVC.Controllers
         public IActionResult StartMonitor()
         {
             _monitor.Start();
-            return RedirectToAction("AddArhive");
+            return RedirectToAction("AddArchive");
         }
 
         public IActionResult StopMonitor()
