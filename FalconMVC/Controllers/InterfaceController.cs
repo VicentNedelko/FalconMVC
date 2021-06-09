@@ -31,7 +31,8 @@ namespace FalconMVC.Controllers
         {
             if (_knxInterface.CheckConnection(interfaceIP))
             {
-                return Content($"Communication established - {interfaceIP}");
+                _knxInterface.GetNewInterface(interfaceIP);
+                return RedirectToAction("ShowAll", "Interface");
             }
             return RedirectToAction("Index", "Home");
         }

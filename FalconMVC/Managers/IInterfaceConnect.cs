@@ -11,6 +11,8 @@ namespace FalconMVC.Managers
         public string InterfaceName { get; set; }
         public string Ip { get; set; }
         public Bus bus { get; set; }
+
+        public void GetNewInterface(string interfaceIp);
         public bool CheckConnection(string interfaceIp);
     }
 }

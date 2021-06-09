@@ -33,7 +33,17 @@ namespace FalconMVC.Managers
             }
         }
 
-        // make ChangeInterface() method
+        public void GetNewInterface(string interfaceIp)
+        {
+            if(bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
+            {
+                bus.Disconnect();
+                bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
+            }
+            bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
+        }
+
+
         public bool CheckConnection(string interfaceIp)
         {
             bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x0e57, false));
