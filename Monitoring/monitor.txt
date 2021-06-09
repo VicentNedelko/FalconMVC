@@ -1,0 +1,2 @@
+0/2/2 - GroupValue SizeInBit=6, Value=0 (0x00) - 16:52
+1/1/4 - 27,28 °C - 16:52

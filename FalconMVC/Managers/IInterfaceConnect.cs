@@ -8,7 +8,9 @@ namespace FalconMVC.Managers
 {
     public interface IInterfaceConnect
     {
+        public string InterfaceName { get; set; }
+        public string Ip { get; set; }
         public Bus bus { get; set; }
-        public bool CheckConnection(string interfaceIP);
+        public bool CheckConnection(string interfaceIp);
     }
 }

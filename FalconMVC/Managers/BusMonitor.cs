@@ -11,12 +11,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Knx.Falcon.Sdk;
 
 namespace FalconMVC.Managers
 {
     public class BusMonitor : IMonitor
     {
-        private readonly IInterfaceConnect _connection;
+        public IInterfaceConnect _connection { set; get; }
+
         private readonly DbFalcon _dbFalcon;
 
         private readonly string path = @"C:\Users\user\Documents\GitHub\FalconMVC\Monitoring\monitor.txt";
@@ -42,6 +44,16 @@ namespace FalconMVC.Managers
         public void Stop()
         {
             _connection.bus.Disconnect();
+        }
+
+        public string GetInterfaceInfo()
+        {
+            if(_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
+            {
+                return _connection.bus.GetLocalConfiguration().ToString();
+            }
+            _connection.bus.Connect();
+            return _connection.bus.GetLocalConfiguration().ToString();
         }
 
         public static DptType DPTConvert(string dptType)

@@ -22,6 +22,8 @@ namespace FalconMVC.Controllers
         public IActionResult ShowAll()
         {
             ViewBag.Interfaces = GetInterfacesList();
+            ViewBag.InterfaceName = _knxInterface.InterfaceName;
+            ViewBag.Ip = _knxInterface.Ip;
             return View();
         }
         [HttpPost]
