@@ -17,7 +17,7 @@ namespace FalconMVC.Controllers
         private readonly DbFalcon _dbFalcon;
         private readonly IMonitor _monitor;
         private readonly string pathRasp = @"/home/GAs/gaList.txt";
-        private readonly string pathWin = @"C:\\GAs";
+        private readonly string pathWin = @"C:\\GAs\\gaList.txt";
 
         private readonly Regex _regex =
             new(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
