@@ -41,6 +41,8 @@ namespace FalconMVC.Managers
                 bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
             }
             bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
+            InterfaceName = bus.OpenParameters.Name;
+            Ip = "Unknown";
         }
 
 
