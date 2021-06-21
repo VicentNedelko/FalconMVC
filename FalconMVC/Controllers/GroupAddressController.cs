@@ -16,13 +16,16 @@ namespace FalconMVC.Controllers
     {
         private readonly DbFalcon _dbFalcon;
         private readonly IMonitor _monitor;
+        private readonly string pathRasp = @"/home/GAs/gaList.txt";
+        private readonly string pathWin = @"C:\\GAs";
 
         private readonly Regex _regex =
-            new Regex(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
+            new(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
         public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor)
         {
             _dbFalcon = dbFalcon;
             _monitor = monitor;
+
         }
 
         [HttpGet]
