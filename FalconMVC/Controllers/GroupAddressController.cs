@@ -29,6 +29,9 @@ namespace FalconMVC.Controllers
 
         }
 
+        // TODO: add JSON serialization
+
+
         public List<GA> GetGAFromFile()
         {
             List<GA> listGA = new();
@@ -80,8 +83,13 @@ namespace FalconMVC.Controllers
                         {
                             Directory.CreateDirectory(@"C:\\GAs");
                         }
-                        using StreamWriter streamWriter = new(pathWin, true);
-                        await streamWriter.WriteLineAsync((new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) }).ToString());
+                        var listGA = GetGAFromFile();
+                        listGA.Add(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
+                        using StreamWriter streamWriter = new(pathWin, false);
+                        foreach(var ga in listGA)
+                        {
+                            streamWriter.WriteLine(ga);
+                        }
                         streamWriter.Close();
                         return View(GetGAFromFile());
                     }
