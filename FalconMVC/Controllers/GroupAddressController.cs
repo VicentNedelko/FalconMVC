@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,6 +27,30 @@ namespace FalconMVC.Controllers
             _dbFalcon = dbFalcon;
             _monitor = monitor;
 
+        }
+
+        public List<GA> GetGAFromFile()
+        {
+            List<GA> listGA = new();
+            using(StreamReader streamReader = new(pathWin))
+            {
+                string line;
+                while((line = streamReader.ReadLine()) is not null)
+                {
+                    var ga = line.Split(" > ");
+                    try
+                    {
+                        listGA.Add(new GA { GAddress = ga[0], GType = BusMonitor.DPTConvert(ga[1]) });
+                    }
+                    catch
+                    {
+                        listGA.Add(new GA { GAddress = "0/0/0", GType = Enums.DptType.Unknown });
+                    }
+                }
+                streamReader.Close();
+            }
+            
+            return listGA;
         }
 
         [HttpGet]
@@ -51,7 +76,14 @@ namespace FalconMVC.Controllers
                     if (result.State == EntityState.Added)
                     {
                         await _dbFalcon.SaveChangesAsync();
-                        return View(await _dbFalcon.GAs.AsNoTracking().ToListAsync());
+                        if (!Directory.Exists(@"C:\\GAs"))
+                        {
+                            Directory.CreateDirectory(@"C:\\GAs");
+                        }
+                        using StreamWriter streamWriter = new(pathWin, true);
+                        await streamWriter.WriteLineAsync((new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) }).ToString());
+                        streamWriter.Close();
+                        return View(GetGAFromFile());
                     }
                 }
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";

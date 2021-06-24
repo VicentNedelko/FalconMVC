@@ -11,5 +11,12 @@ namespace FalconMVC.Models
         public int Id { get; set; }
         public string GAddress { get; set; }
         public DptType? GType { get; set; }
+
+
+        public override string ToString()
+        {
+            string result = string.Concat(GAddress, " > ", GType);
+            return result;
+        }
     }
 }
