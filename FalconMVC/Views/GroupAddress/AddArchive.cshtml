@@ -28,7 +28,7 @@
         {
             foreach (var ga in Model)
             {
-                <p>@ga.Id .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-id="@ga.Id">Remove</a></p>
+                <p>@ga.Id .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-name="@ga.GAddress">Remove</a></p>
             }
             <br />
 

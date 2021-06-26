@@ -17,8 +17,9 @@ namespace FalconMVC.Controllers
     {
         private readonly DbFalcon _dbFalcon;
         private readonly IMonitor _monitor;
-        private readonly string pathRasp = @"/home/GAs/gaList.txt";
-        private readonly string pathWin = @"C:\\GAs\\gaList.txt";
+        //private readonly string pathRasp = @"/home/GAs/gaList.json";
+        //private readonly string pathWin = @"C:\\GAs\\gaList.txt";
+        private readonly string pathJSONWin = @"C:\\GAs\\gaList.json";
 
         private readonly Regex _regex =
             new(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
@@ -26,7 +27,6 @@ namespace FalconMVC.Controllers
         {
             _dbFalcon = dbFalcon;
             _monitor = monitor;
-
         }
 
         // TODO: add JSON serialization
@@ -35,25 +35,23 @@ namespace FalconMVC.Controllers
         public List<GA> GetGAFromFile()
         {
             List<GA> listGA = new();
-            using(StreamReader streamReader = new(pathWin))
+            using(StreamReader streamReader = new(pathJSONWin))
             {
-                string line;
-                while((line = streamReader.ReadLine()) is not null)
-                {
-                    var ga = line.Split(" > ");
-                    try
-                    {
-                        listGA.Add(new GA { GAddress = ga[0], GType = BusMonitor.DPTConvert(ga[1]) });
-                    }
-                    catch
-                    {
-                        listGA.Add(new GA { GAddress = "0/0/0", GType = Enums.DptType.Unknown });
-                    }
-                }
+                JsonSerializer jsonSerializer = new();
+                string jsonString = streamReader.ReadToEnd();
+                listGA = JsonConvert.DeserializeObject<List<GA>>(jsonString);
                 streamReader.Close();
             }
             
             return listGA;
+        }
+
+        public void WriteGAToFile(List<GA> listGA)
+        {
+            using StreamWriter streamWriter = new(pathJSONWin, false);
+            JsonSerializer jsonSerializer = new();
+            jsonSerializer.Serialize(streamWriter, listGA);
+            streamWriter.Close();
         }
 
         [HttpGet]
@@ -63,9 +61,9 @@ namespace FalconMVC.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> AddArchiveAsync()
+        public IActionResult AddArchive()
         {
-            return View(await _dbFalcon.GAs.AsNoTracking().ToListAsync());
+            return View(GetGAFromFile());
         }
 
         [HttpPost]
@@ -85,12 +83,7 @@ namespace FalconMVC.Controllers
                         }
                         var listGA = GetGAFromFile();
                         listGA.Add(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
-                        using StreamWriter streamWriter = new(pathWin, false);
-                        foreach(var ga in listGA)
-                        {
-                            streamWriter.WriteLine(ga);
-                        }
-                        streamWriter.Close();
+                        WriteGAToFile(listGA);
                         return View(GetGAFromFile());
                     }
                 }
@@ -100,26 +93,20 @@ namespace FalconMVC.Controllers
             return Content("GA is also exist or equals to null.");
         }
 
-        public async Task<IActionResult> Remove(int id)
+        public IActionResult Remove(string name)
         {
-            var GAToRemove = await _dbFalcon.GAs.FindAsync(id);
+            var listGA = GetGAFromFile();
+
+            var GAToRemove = listGA.FirstOrDefault(g => g.GAddress == name);
             if(GAToRemove is not null)
             {
-                var result = _dbFalcon.GAs.Remove(GAToRemove);
-                if (result.State == EntityState.Deleted)
-                {
-                    await _dbFalcon.SaveChangesAsync();
-                    return RedirectToAction("AddArchive", "GroupAddress");
-                }
-                else
-                {
-                    ViewBag.Error = "DB error.";
-                    return View("Error");
-                }
+                listGA.Remove(GAToRemove);
+                WriteGAToFile(listGA);
+                return RedirectToAction("AddArchive");
             }
             else
             {
-                ViewBag.Error = "GA is NULL. Reason : GA didn't find ID in DB or wrong ID.";
+                ViewBag.Error = "GA is NULL. Reason : GA didn't find in JSON or wrong name.";
                 return View("Error");
             }
         }
