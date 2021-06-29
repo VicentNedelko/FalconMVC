@@ -31,9 +31,6 @@ namespace FalconMVC.Controllers
             _tbot = tbot;
         }
 
-        // TODO: add JSON serialization
-
-
         public List<GA> GetGAFromFile()
         {
             List<GA> listGA = new();
