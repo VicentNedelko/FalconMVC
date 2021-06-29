@@ -30,6 +30,7 @@ namespace FalconMVC
         {
             services.AddSingleton<IInterfaceConnect, KnxIpInterface>();
             services.AddScoped<IMonitor, BusMonitor>();
+            services.AddSingleton<IBot, Tbot>();
             services.AddDbContext<DbFalcon>(options =>
             options.UseSqlServer(Configuration.GetConnectionString("FalconConnection")));
             services.AddIdentity<User, IdentityRole>(opts =>

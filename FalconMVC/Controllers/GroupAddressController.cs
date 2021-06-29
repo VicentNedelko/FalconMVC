@@ -17,16 +17,18 @@ namespace FalconMVC.Controllers
     {
         private readonly DbFalcon _dbFalcon;
         private readonly IMonitor _monitor;
+        private readonly IBot _tbot;
         //private readonly string pathRasp = @"/home/GAs/gaList.json";
         //private readonly string pathWin = @"C:\\GAs\\gaList.txt";
         private readonly string pathJSONWin = @"C:\\GAs\\gaList.json";
 
         private readonly Regex _regex =
             new(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
-        public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor)
+        public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor, IBot tbot)
         {
             _dbFalcon = dbFalcon;
             _monitor = monitor;
+            _tbot = tbot;
         }
 
         // TODO: add JSON serialization
@@ -84,6 +86,7 @@ namespace FalconMVC.Controllers
                         var listGA = GetGAFromFile();
                         listGA.Add(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
                         WriteGAToFile(listGA);
+                        await _tbot.SendMessageAsync($"new GA {nameGA} added");
                         return View(GetGAFromFile());
                     }
                 }
