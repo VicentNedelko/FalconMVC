@@ -1,0 +1,25 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@model List<GAwithThreshold>
+
+<h6>GA with thresholds for Telegram notifications</h6>
+
+<form asp-asp-controller="GroupAddress" asp-action="Thresholds" method="get">
+<div>
+    <fieldset>
+        <legend>GA list</legend>
+        @{
+                foreach(var ga in Model)
+                {
+                    <p>@ga.Id.ToString().Substring(0, 5) --> @ga.GAddress --> @ga.GType <input type="text" name="minThreshold" />-MIN   <input type="text" name="maxThreshold" />-MAX <button asp-controller="GroupAddress" asp-action="AddGAwithThreshold" asp-route-itemid="@ga.Id">Add</button> </p>
+            }
+        }
+    </fieldset>
+</div>
+</form>
+<form asp-controller="GroupAddress" asp-action="Thresholds" method="post">
+    <div>
+        
+    </div>
+</form>

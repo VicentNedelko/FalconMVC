@@ -23,23 +23,30 @@
 </form><br />
 <fieldset disabled>
     <legend>GA List for monitoring</legend>
-    @{
-        if (Model.Count() != 0)
-        {
-            foreach (var ga in Model)
+        @{
+            if (Model is not null)
             {
-                <p>@ga.Id .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-name="@ga.GAddress">Remove</a></p>
-            }
-            <br />
+                if (Model.Count() != 0)
+                {
+                    foreach (var ga in Model)
+                    {
+                        <p>@ga.Id.ToString().Substring(0, 5) .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-name="@ga.GAddress">Remove</a></p>
+                    }
+                    <br />
 
-        }
+                }
+            }
     }
 </fieldset><br />
 <div>
-    @if(Model.Count() != 0)
+    @if(Model is not null && Model.Count() != 0)
     {
         <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; color: blue">Start</button><button name="Stop" id="Stop" style="color: red; font-size: 20px" onclick="javascript:StopMonitor();">Stop</button>
     }
+        else
+        {
+            <p>GA list is empty. Add new GA.</p>
+        }
 </div>
 
 </body>

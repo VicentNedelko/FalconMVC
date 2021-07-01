@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,15 +35,38 @@ namespace FalconMVC.Controllers
         public List<GA> GetGAFromFile()
         {
             List<GA> listGA = new();
+            
             using(StreamReader streamReader = new(pathJSONWin))
             {
                 JsonSerializer jsonSerializer = new();
                 string jsonString = streamReader.ReadToEnd();
-                listGA = JsonConvert.DeserializeObject<List<GA>>(jsonString);
+                var listGAJson = JsonConvert.DeserializeObject<List<GA>>(jsonString);
                 streamReader.Close();
+                if(listGAJson is not null)
+                {
+                    return listGAJson;
+                }
             }
-            
             return listGA;
+        }
+
+        public List<GAwithThreshold> ConvertToGAwithThreshold(List<GA> listGA)
+        {
+            List<GAwithThreshold> listGAwithThresholds = new();
+            foreach(var ga in listGA)
+            {
+                listGAwithThresholds.Add(
+                    new GAwithThreshold
+                    {
+                        Id = ga.Id,
+                        GAddress = ga.GAddress,
+                        GType = ga.GType,
+                        ThresholdMin = 0,
+                        ThresholdMax = 0,
+                        IsCheck = false
+                    });
+            }
+            return listGAwithThresholds;
         }
 
         public void WriteGAToFile(List<GA> listGA)
@@ -59,6 +83,17 @@ namespace FalconMVC.Controllers
             return View();
         }
 
+        // Thresholds
+
+        [HttpGet]
+        public IActionResult Thresholds()
+        {
+            return View(ConvertToGAwithThreshold(GetGAFromFile()));
+        }
+
+
+        // Thresholds
+
         [HttpGet]
         public IActionResult AddArchive()
         {
@@ -68,24 +103,19 @@ namespace FalconMVC.Controllers
         [HttpPost]
         public async Task<IActionResult> AddArchiveAsync(string nameGA, string typeGA)
         {
-            if(nameGA is not null && !_dbFalcon.GAs.Any(ga => ga.GAddress == nameGA))
+            if(nameGA is not null)
             {
                 if (_regex.IsMatch(nameGA))
                 {
-                    var result = await _dbFalcon.GAs.AddAsync(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
-                    if (result.State == EntityState.Added)
-                    {
-                        await _dbFalcon.SaveChangesAsync();
-                        if (!Directory.Exists(@"C:\\GAs"))
-                        {
-                            Directory.CreateDirectory(@"C:\\GAs");
-                        }
-                        var listGA = GetGAFromFile();
-                        listGA.Add(new GA { GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
-                        WriteGAToFile(listGA);
-                        await _tbot.SendMessageAsync($"new GA {nameGA} added");
-                        return View(GetGAFromFile());
-                    }
+                    //if (!Directory.Exists(@"C:\\GAs"))
+                    //{
+                    //    Directory.CreateDirectory(@"C:\\GAs");
+                    //}
+                    var listGA = GetGAFromFile();
+                    listGA.Add(new GA { Id = Guid.NewGuid(), GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
+                    WriteGAToFile(listGA);
+                    await _tbot.SendMessageAsync($"new GA {nameGA} added");
+                    return View(GetGAFromFile());
                 }
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";
                 return View("Error");

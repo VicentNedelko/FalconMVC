@@ -6,17 +6,13 @@ using System.Threading.Tasks;
 
 namespace FalconMVC.Models
 {
-    public class GA
+    public class GAwithThreshold
     {
         public Guid Id { get; set; }
         public string GAddress { get; set; }
         public DptType? GType { get; set; }
-
-
-        public override string ToString()
-        {
-            string result = string.Concat(GAddress, " > ", GType);
-            return result;
-        }
+        public decimal ThresholdMin { get; set; }
+        public decimal ThresholdMax { get; set; }
+        public bool IsCheck { get; set; } = false;
     }
 }
