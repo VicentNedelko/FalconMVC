@@ -60,7 +60,7 @@
 <div>
     @if(Model is not null && Model.Count() != 0)
     {
-        <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; color: blue">Start</button><button name="Stop" id="Stop" style="color: red; font-size: 20px" onclick="javascript:StopMonitor();">Stop</button>
+        <button id="Start" onclick="javascript:StartMonitor();" style="font-size: 20px; width:70px; text-align:center; height:30px; color: blue; margin-right:20px">Start</button><button name="Stop" id="Stop" style="color: red; text-align:center; font-size: 20px; width:70px; height:30px" onclick="javascript:StopMonitor();">Stop</button>
     }
         else
         {
@@ -77,8 +77,8 @@
     function StartMonitor()
     {
         alert('Start monitor');
-        document.getElementById('Start').hidden = true;
-        document.getElementById('Stop').hidden = false;
+        document.querySelector('#Start').disabled = true;
+        document.querySelector('#Stop').disabled = false;
         localStorage.setItem("monitorState", "start");
         document.location = '@Url.Action("StartMonitor","GroupAddress")';
     }
@@ -96,18 +96,18 @@
         var state = localStorage.getItem("monitorState");
         if (state === null) {
             alert('NULL');
-            document.getElementById('Start').hidden = false;
-            document.getElementById('Stop').hidden = true;
+            document.querySelector('#Start').disabled = false;
+            document.querySelector('#Stop').disabled = true;
             localStorage.setItem("monitorState", "stop");
         }
         else if (state == "start") {
-            document.getElementById('Start').hidden = true;
-            document.getElementById('Stop').hidden = false;
+            document.querySelector('#Start').disabled = true;
+            document.querySelector('#Stop').disabled = false;
             localStorage.setItem("monitorState", "start");
         }
         else {
-            document.getElementById('Start').hidden = false;
-            document.getElementById('Stop').hidden = true;
+            document.querySelector('#Start').disabled = false;
+            document.querySelector('#Stop').disabled = true;
         }
     }
 

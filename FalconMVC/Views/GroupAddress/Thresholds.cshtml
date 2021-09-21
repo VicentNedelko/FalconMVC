@@ -3,7 +3,7 @@
 }
 @model List<GAwithThreshold>
 
-<h6>GA with thresholds for Telegram notifications Manager</h6>
+<h6>Notifications Manager</h6>
 
 <form asp-controller="GroupAddress" asp-action="AddThresholdGA">
 <table>
@@ -57,8 +57,8 @@
                                 <td style="width:120px; text-align:center">@ga.GAddress</td>
                                 <td style="width:120px; text-align:center">@ga.GType</td>
                                 <td style="width:180px; text-align:center">@ga.Description</td>
-                                <td style="width:100px; text-align:center"><input style="border:none; width:50px" type="text" name="minThreshold"/></td>
-                                <td style="width:100px; text-align:center"><input style="border:none; width:50px" type="text" name="maxThreshold"/></td>
+                                <td style="width:100px; text-align:center">@ga.ThresholdMin</td>
+                                <td style="width:100px; text-align:center">@ga.ThresholdMax</td>
                                 <td style="width:80px; text-align:center"><a asp-controller="GroupAddress" asp-action="RemoveGAWithTh" asp-route-id="@ga.Id">Remove</a></td>
                             </tr>
                         }

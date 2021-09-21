@@ -40,11 +40,10 @@ namespace FalconMVC.Controllers
             using(StreamReader streamReader = new(pathJSON))
             {
                 string jsonString = streamReader.ReadToEnd();
-                var listGAJson = JsonSerializer.Deserialize<List<GA>>(jsonString);
-                streamReader.Close();
-                if(listGAJson is not null)
+                if(jsonString.Substring(0, 1) == "[")
                 {
-                    return listGAJson;
+                    listGA = JsonSerializer.Deserialize<List<GA>>(jsonString);
+                    streamReader.Close();
                 }
             }
             return listGA;
@@ -58,8 +57,11 @@ namespace FalconMVC.Controllers
             using(StreamReader sr = new(JSONwithThPath))
             {
                 var str = sr.ReadToEnd();
-                gaWithThresholds = JsonSerializer.Deserialize<List<GAwithThreshold>>(str);
-                sr.Close();
+                if(str.Substring(0, 1) == "[")
+                {
+                    gaWithThresholds = JsonSerializer.Deserialize<List<GAwithThreshold>>(str);
+                    sr.Close();
+                }
             };
             return gaWithThresholds;
         }
@@ -68,10 +70,9 @@ namespace FalconMVC.Controllers
         {
             var JSONThPath = Path.Combine(_env.WebRootPath, "gaThList.json");
             var json = JsonSerializer.Serialize(gaList);
-            using(StreamWriter sw = new(JSONThPath))
-            {
-
-            }
+            using StreamWriter sw = new(JSONThPath, false);
+            sw.Write(json);
+            sw.Close();
         }
 
         public List<GAwithThreshold> ConvertToGAwithThreshold(List<GA> listGA)
@@ -95,7 +96,7 @@ namespace FalconMVC.Controllers
         {
             string pathJSON = Path.Combine(_env.WebRootPath, "gaList.json");
             using StreamWriter streamWriter = new(pathJSON, false);
-            var json = JsonSerializer.Serialize(streamWriter);
+            var json = JsonSerializer.Serialize(listGA);
             streamWriter.Write(json);
             streamWriter.Close();
         }
@@ -111,22 +112,35 @@ namespace FalconMVC.Controllers
         [HttpGet]
         public IActionResult Thresholds()
         {
-
-            return View(ConvertToGAwithThreshold(GetGAFromFile()));
+            var listModel = GetGAWithThFromFile();
+            return View(listModel);
         }
 
         public IActionResult AddThresholdGA(string nameGA, string descriptionGA, string typeGA, decimal maxValue, decimal minValue)
         {
-            var gaWithThreshold = new GAwithThreshold
+            if (_regex.IsMatch(nameGA))
             {
-                Id = Guid.NewGuid(),
-                GAddress = nameGA,
-                GType = BusMonitor.DPTConvert(typeGA),
-                Description = descriptionGA,
-                ThresholdMin = minValue,
-                ThresholdMax = maxValue,
-                IsCheck = false,
-            };
+                var gaWithThreshold = new GAwithThreshold
+                {
+                    Id = Guid.NewGuid(),
+                    GAddress = nameGA,
+                    GType = BusMonitor.DPTConvert(typeGA),
+                    Description = descriptionGA,
+                    ThresholdMin = minValue,
+                    ThresholdMax = maxValue,
+                    IsCheck = false,
+                };
+                var list = GetGAWithThFromFile();
+                list.Add(gaWithThreshold);
+                WriteGAWithThToFile(list);
+            }
+            else
+            {
+                ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";
+                return View("Error");
+            }
+            return RedirectToAction("Thresholds");
+
         }
 
 

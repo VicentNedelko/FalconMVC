@@ -9,16 +9,17 @@
 <h4>Login</h4>
 <form asp-controller="Registration" asp-action="LogIn">
     <div asp-validation-summary="All"></div>
-    <div>
-        <label asp-for="Email">Email : </label>
-        <input asp-for="Email" />
-        <span asp-validation-for="Email"></span>
-    </div><br />
-    <div>
-        <label asp-for="Password">Password : </label>
-        <input asp-for="Password" />
-        <span asp-validation-for="Password"></span>
-    </div><br />
+    <table>
+        <tbody>
+            <tr>
+                <td style="text-align:right"><label asp-for="Email" >Email  </label></td><td><input asp-for="Email" /><span asp-validation-for="Email"></span></td>
+            </tr>
+            <tr>
+                <td style="text-align:right"><label asp-for="Password"  >Password  </label></td><td><input asp-for="Password" /><span asp-validation-for="Password"></span></td>
+            </tr>
+        </tbody>
+    </table>
+
     <input type="submit" value="Login" />
 
 </form>
