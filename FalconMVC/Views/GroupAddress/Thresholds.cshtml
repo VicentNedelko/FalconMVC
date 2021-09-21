@@ -3,23 +3,73 @@
 }
 @model List<GAwithThreshold>
 
-<h6>GA with thresholds for Telegram notifications</h6>
+<h6>GA with thresholds for Telegram notifications Manager</h6>
 
-<form asp-asp-controller="GroupAddress" asp-action="Thresholds" method="get">
+<form asp-controller="GroupAddress" asp-action="AddThresholdGA">
+<table>
+    <tbody>
+        <tr>
+            <td>GA (_/_/_) </td><td><input name="nameGA" type="text"/></td>
+        </tr>
+        <tr>
+            <td>Description </td><td><input name="descriptionGA" type="text"/></td>
+        </tr>
+        <tr>
+            <td>GA Types </td>
+            <td>
+                <input list="types" name="typeGA" placeholder="Enter GA Type"/>
+                <datalist id="types">
+                    <option value="Temperature"></option>
+                    <option value="Switch"></option>
+                    <option value="Percent"></option>
+                </datalist>
+            </td>
+        </tr>
+        <tr>
+            <td>Max value </td><td><input name="maxValue" type="number"/></td>
+        </tr>
+        <tr>
+            <td>Min value</td><td><input name="minValue" type="number"/></td>
+        </tr>
+    </tbody>
+</table><br />
+
+    <input type="submit" value="Add GA with Th" /><br />
+</form><br />
+
+<form asp-controller="GroupAddress" asp-action="Thresholds">
 <div>
-    <fieldset>
-        <legend>GA list</legend>
-        @{
-                foreach(var ga in Model)
-                {
-                    <p>@ga.Id.ToString().Substring(0, 5) --> @ga.GAddress --> @ga.GType <input type="text" name="minThreshold" />-MIN   <input type="text" name="maxThreshold" />-MAX <button asp-controller="GroupAddress" asp-action="AddGAwithThreshold" asp-route-itemid="@ga.Id">Add</button> </p>
-            }
+        @if(Model is not null && Model.Count != 0)
+        {
+        <fieldset>
+            <legend>GA list</legend>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th style="text-align:center">ID</th><th style="text-align:center">Address</th><th style="text-align:center">Type</th><th style="text-align:center">Description</th><th style="text-align:center">Min value</th><th style="text-align:center">Max value</th><th style="text-align:center">Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @foreach(var ga in Model)
+                        {
+                            <tr>
+                                <td style="width:80px; text-align:center">@ga.Id.ToString().Substring(0, 5)</td>
+                                <td style="width:120px; text-align:center">@ga.GAddress</td>
+                                <td style="width:120px; text-align:center">@ga.GType</td>
+                                <td style="width:180px; text-align:center">@ga.Description</td>
+                                <td style="width:100px; text-align:center"><input style="border:none; width:50px" type="text" name="minThreshold"/></td>
+                                <td style="width:100px; text-align:center"><input style="border:none; width:50px" type="text" name="maxThreshold"/></td>
+                                <td style="width:80px; text-align:center"><a asp-controller="GroupAddress" asp-action="RemoveGAWithTh" asp-route-id="@ga.Id">Remove</a></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+        </fieldset>
         }
-    </fieldset>
+        else
+        {
+            <h6>List is empty. Add new GA.</h6>
+        }
+
 </div>
-</form>
-<form asp-controller="GroupAddress" asp-action="Thresholds" method="post">
-    <div>
-        
-    </div>
 </form>

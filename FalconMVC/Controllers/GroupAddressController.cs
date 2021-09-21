@@ -1,14 +1,15 @@
 ﻿using FalconMVC.Managers;
 using FalconMVC.Models;
 using Knx.Bus.Common;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
@@ -19,28 +20,27 @@ namespace FalconMVC.Controllers
         private readonly DbFalcon _dbFalcon;
         private readonly IMonitor _monitor;
         private readonly IBot _tbot;
-        //private readonly string pathRasp = @"/home/GAs/gaList.json";
-        //private readonly string pathWin = @"C:\\GAs\\gaList.txt";
-        private readonly string pathJSONWin = @"C:\\GAs\\gaList.json";
+        private readonly IWebHostEnvironment _env;
 
         private readonly Regex _regex =
             new(@"^([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]{1})\/([0-9]|[1-9][0-9]|[1-2][0-5][0-5]){1}$");
-        public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor, IBot tbot)
+        public GroupAddressController(DbFalcon dbFalcon, IMonitor monitor, IBot tbot, IWebHostEnvironment env)
         {
             _dbFalcon = dbFalcon;
             _monitor = monitor;
             _tbot = tbot;
+            _env = env;
         }
 
         public List<GA> GetGAFromFile()
         {
             List<GA> listGA = new();
-            
-            using(StreamReader streamReader = new(pathJSONWin))
+            string pathJSON = Path.Combine(_env.WebRootPath, "gaList.json");
+
+            using(StreamReader streamReader = new(pathJSON))
             {
-                JsonSerializer jsonSerializer = new();
                 string jsonString = streamReader.ReadToEnd();
-                var listGAJson = JsonConvert.DeserializeObject<List<GA>>(jsonString);
+                var listGAJson = JsonSerializer.Deserialize<List<GA>>(jsonString);
                 streamReader.Close();
                 if(listGAJson is not null)
                 {
@@ -50,30 +50,53 @@ namespace FalconMVC.Controllers
             return listGA;
         }
 
+        public List<GAwithThreshold> GetGAWithThFromFile()
+        {
+            List<GAwithThreshold> gaWithThresholds = new();
+            var JSONwithThPath = Path.Combine(_env.WebRootPath, "gaThList.json");
+
+            using(StreamReader sr = new(JSONwithThPath))
+            {
+                var str = sr.ReadToEnd();
+                gaWithThresholds = JsonSerializer.Deserialize<List<GAwithThreshold>>(str);
+                sr.Close();
+            };
+            return gaWithThresholds;
+        }
+
+        public void WriteGAWithThToFile(List<GAwithThreshold> gaList)
+        {
+            var JSONThPath = Path.Combine(_env.WebRootPath, "gaThList.json");
+            var json = JsonSerializer.Serialize(gaList);
+            using(StreamWriter sw = new(JSONThPath))
+            {
+
+            }
+        }
+
         public List<GAwithThreshold> ConvertToGAwithThreshold(List<GA> listGA)
         {
             List<GAwithThreshold> listGAwithThresholds = new();
-            foreach(var ga in listGA)
+            listGAwithThresholds = listGA.Select(ga => new GAwithThreshold
             {
-                listGAwithThresholds.Add(
-                    new GAwithThreshold
-                    {
-                        Id = ga.Id,
-                        GAddress = ga.GAddress,
-                        GType = ga.GType,
-                        ThresholdMin = 0,
-                        ThresholdMax = 0,
-                        IsCheck = false
-                    });
-            }
+                Id = ga.Id,
+                GAddress = ga.GAddress,
+                GType = ga.GType,
+                Description = ga.Description,
+                ThresholdMin = 0,
+                ThresholdMax = 0,
+                IsCheck = false,
+            }).ToList();
+
             return listGAwithThresholds;
         }
 
         public void WriteGAToFile(List<GA> listGA)
         {
-            using StreamWriter streamWriter = new(pathJSONWin, false);
-            JsonSerializer jsonSerializer = new();
-            jsonSerializer.Serialize(streamWriter, listGA);
+            string pathJSON = Path.Combine(_env.WebRootPath, "gaList.json");
+            using StreamWriter streamWriter = new(pathJSON, false);
+            var json = JsonSerializer.Serialize(streamWriter);
+            streamWriter.Write(json);
             streamWriter.Close();
         }
 
@@ -88,7 +111,22 @@ namespace FalconMVC.Controllers
         [HttpGet]
         public IActionResult Thresholds()
         {
+
             return View(ConvertToGAwithThreshold(GetGAFromFile()));
+        }
+
+        public IActionResult AddThresholdGA(string nameGA, string descriptionGA, string typeGA, decimal maxValue, decimal minValue)
+        {
+            var gaWithThreshold = new GAwithThreshold
+            {
+                Id = Guid.NewGuid(),
+                GAddress = nameGA,
+                GType = BusMonitor.DPTConvert(typeGA),
+                Description = descriptionGA,
+                ThresholdMin = minValue,
+                ThresholdMax = maxValue,
+                IsCheck = false,
+            };
         }
 
 
@@ -101,20 +139,16 @@ namespace FalconMVC.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddArchiveAsync(string nameGA, string typeGA)
+        public IActionResult AddArchive(string nameGA, string typeGA, string descriptionGA)
         {
             if(nameGA is not null)
             {
                 if (_regex.IsMatch(nameGA))
                 {
-                    //if (!Directory.Exists(@"C:\\GAs"))
-                    //{
-                    //    Directory.CreateDirectory(@"C:\\GAs");
-                    //}
                     var listGA = GetGAFromFile();
-                    listGA.Add(new GA { Id = Guid.NewGuid(), GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA) });
+                    listGA.Add(new GA { Id = Guid.NewGuid(), GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA), Description = descriptionGA });
                     WriteGAToFile(listGA);
-                    await _tbot.SendMessageAsync($"new GA {nameGA} added");
+                    //await _tbot.SendMessageAsync($"new GA {nameGA} added");
                     return View(GetGAFromFile());
                 }
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";

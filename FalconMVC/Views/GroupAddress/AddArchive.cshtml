@@ -5,20 +5,28 @@
 <body onload="javascript: SetDefaultState();">
 <h6>GA Archive manager</h6>
 <form asp-controller="GroupAddress" asp-action="AddArchive">
-    <div>
-        <label>
-            GA (_/_/_) - <input name="nameGA" type="text"/>
-        </label>
-    </div>
-    <div>
-        <label>GA Types - </label>
-        <input list="types" name="typeGA" placeholder="Enter GA Type"/>
-        <datalist id="types">
-            <option value="Temperature"></option>
-            <option value="Switch"></option>
-            <option value="Percent"></option>
-        </datalist>
-    </div><br />
+<table>
+    <tbody>
+        <tr>
+            <td>GA (_/_/_) </td><td><input name="nameGA" type="text"/></td>
+        </tr>
+        <tr>
+            <td>Description </td><td><input name="descriptionGA" type="text"/></td>
+        </tr>
+        <tr>
+            <td>GA Types </td>
+            <td>
+                <input list="types" name="typeGA" placeholder="Enter GA Type"/>
+                <datalist id="types">
+                    <option value="Temperature"></option>
+                    <option value="Switch"></option>
+                    <option value="Percent"></option>
+                </datalist>
+            </td>
+        </tr>
+    </tbody>
+</table><br />
+
     <input type="submit" value="Add GA" /><br />
 </form><br />
 <fieldset disabled>
@@ -28,10 +36,21 @@
             {
                 if (Model.Count() != 0)
                 {
-                    foreach (var ga in Model)
+                     <table border="1">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center">ID</th><th style="text-align:center">Group address</th><th style="text-align:center">Value type</th><th style="text-align:center">Description</th><th style="text-align:center">Remove</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    @foreach (var ga in Model)
                     {
-                        <p>@ga.Id.ToString().Substring(0, 5) .     @ga.GAddress - @ga.GType    <a asp-controller="GroupAddress" asp-action="Remove" asp-route-name="@ga.GAddress">Remove</a></p>
+                            <tr>
+                                <td style="width:80px; text-align:center">@ga.Id.ToString().Substring(0, 5)</td><td style="width:120px; text-align:center">@ga.GAddress</td><td style="width:120px; text-align:center">@ga.GType</td><td style="width:150px; text-align:center">@ga.Description</td><td style="width: 80px; text-align:center"><a asp-controller="GroupAddress" asp-action="Remove" asp-route-name="@ga.GAddress">Remove</a></td>
+                            </tr>
                     }
+                        </tbody>
+                    </table>
                     <br />
 
                 }
