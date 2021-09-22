@@ -73,10 +73,12 @@ namespace FalconMVC.Managers
 
         private void Monitoring(List<GA> gaMonitoringList)
         {
+            using (_connection.bus)
+            {
                 _connection.bus.Connect();
+                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
                 while (_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
                 {
-                    using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
                     float convertedValue;
                     GroupValue rawValue;
                     foreach (var gaValue in gaMonitoringList)
@@ -105,10 +107,12 @@ namespace FalconMVC.Managers
                                 break;
                         }
                     }
-                    streamWriter.Flush();
-                    streamWriter.Close();
-                    Thread.Sleep(1000);
+                    Thread.Sleep(2000);
                 }
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
+           
 
         }
     }
