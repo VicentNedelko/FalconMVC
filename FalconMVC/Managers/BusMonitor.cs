@@ -15,6 +15,7 @@ using Knx.Falcon.Sdk;
 using Microsoft.AspNetCore.Hosting;
 using System.Text.Json;
 using Knx.Bus.Common.Configuration;
+using Knx.Bus.Common;
 
 namespace FalconMVC.Managers
 {
@@ -76,6 +77,7 @@ namespace FalconMVC.Managers
             using (_connection.bus)
             {
                 _connection.bus.Connect();
+                _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
                 using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
                 while (_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
                 {
@@ -114,6 +116,14 @@ namespace FalconMVC.Managers
             }
            
 
+        }
+
+        private void Bus_GroupValueReceived(GroupValueEventArgs obj)
+        {
+            if(obj.Address.ToString() == "0/4/7")
+            {
+
+            }
         }
     }
 }
