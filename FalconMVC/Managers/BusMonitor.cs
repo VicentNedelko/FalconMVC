@@ -12,31 +12,35 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Knx.Falcon.Sdk;
+using Microsoft.AspNetCore.Hosting;
+using System.Text.Json;
+using Knx.Bus.Common.Configuration;
 
 namespace FalconMVC.Managers
 {
     public class BusMonitor : IMonitor
     {
-        public IInterfaceConnect _connection { set; get; }
+        private IInterfaceConnect _connection { set; get; }
 
-        private readonly DbFalcon _dbFalcon;
+        private readonly IWebHostEnvironment _env;
 
-        private readonly string path = @"C:\Users\user\Documents\GitHub\FalconMVC\Monitoring\monitor.txt";
 
-        public BusMonitor(IInterfaceConnect connection, DbFalcon dbFalcon)
+        public BusMonitor(IInterfaceConnect connection, IWebHostEnvironment env)
         {
+
             _connection = connection;
-            _dbFalcon = dbFalcon;
+            _env = env;
         }
         public void Start()
         {
-            var gaList = _dbFalcon.GAs.AsNoTracking().ToList();
-            var gaMonitoringList = new List<string>();
-            foreach(var ga in gaList)
+            List<GA> gaList;
+            var jsonPath = Path.Combine(_env.WebRootPath, "gaList.json");
+            using (StreamReader sr = new(jsonPath))
             {
-                gaMonitoringList.Add(ga.GAddress);
+                var json = sr.ReadToEnd();
+                gaList = JsonSerializer.Deserialize<List<GA>>(json);
+                sr.Close();
             }
-            _connection.bus.Connect();
             Task monitoringTask = new(() => Monitoring(gaList));
             monitoringTask.Start();
         }
@@ -69,40 +73,43 @@ namespace FalconMVC.Managers
 
         private void Monitoring(List<GA> gaMonitoringList)
         {
-            using StreamWriter streamWriter = new(path, false, System.Text.Encoding.Default);
-            while (_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
-            {
-                float convertedValue;
-                GroupValue rawValue;
-                foreach (var gaValue in gaMonitoringList)
+                _connection.bus.Connect();
+                while (_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
                 {
-                    try
+                    using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
+                    float convertedValue;
+                    GroupValue rawValue;
+                    foreach (var gaValue in gaMonitoringList)
                     {
-                        rawValue = _connection.bus.ReadValue(gaValue.GAddress);
-                    }
-                    catch (Knx.Bus.Common.Exceptions.NoResponseReceivedException)
-                    {
-                        rawValue = new(false);
-                    }
+                        try
+                        {
+                            rawValue = _connection.bus.ReadValue(gaValue.GAddress);
+                        }
+                        catch (Knx.Bus.Common.Exceptions.ConnectionException)
+                        {
+                            rawValue = new(false);
+                        }
 
-                    switch (gaValue.GType)
-                    {
-                        case (DptType.Switch or DptType.Unknown):
-                            streamWriter.WriteLine($"{gaValue.GAddress} - {rawValue} - {DateTime.Now.ToShortTimeString()}");
-                            break;
-                        case DptType.Temperature:
-                            convertedValue = new Dpt9().ToTypedValue(rawValue);
-                            streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} °C - {DateTime.Now.ToShortTimeString()}");
-                            break;
-                        case DptType.Percent:
-                            convertedValue = new Dpt5().ToTypedValue(rawValue);
-                            streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} % - {DateTime.Now.ToShortTimeString()}");
-                            break;
+                        switch (gaValue.GType)
+                        {
+                            case (DptType.Switch or DptType.Unknown):
+                                streamWriter.WriteLine($"{gaValue.GAddress} - {rawValue} - {DateTime.Now.ToShortTimeString()}");
+                                break;
+                            case DptType.Temperature:
+                                convertedValue = new Dpt9().ToTypedValue(rawValue);
+                                streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} °C - {DateTime.Now.ToShortTimeString()}");
+                                break;
+                            case DptType.Percent:
+                                convertedValue = new Dpt5().ToTypedValue(rawValue);
+                                streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} % - {DateTime.Now.ToShortTimeString()}");
+                                break;
+                        }
                     }
+                    streamWriter.Flush();
+                    streamWriter.Close();
+                    Thread.Sleep(1000);
                 }
-                Thread.Sleep(10000);
-            }
-            streamWriter.Close();
+
         }
     }
 }

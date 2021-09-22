@@ -28,7 +28,7 @@ namespace FalconMVC
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddSingleton<IInterfaceConnect, KnxIpInterface>();
+            services.AddScoped<IInterfaceConnect, KnxIpInterface>();
             services.AddScoped<IMonitor, BusMonitor>();
             services.AddSingleton<IBot, Tbot>();
             services.AddDbContext<DbFalcon>(options =>

@@ -17,16 +17,16 @@ namespace FalconMVC.Managers
         public KnxIpInterface()
         {
             int i = 0;
-            DiscoveryClient discoveryClient = new DiscoveryClient(adapterType: AdapterTypes.All);
+            DiscoveryClient discoveryClient = new(adapterType: AdapterTypes.All);
             DiscoveryResult[] results = discoveryClient.Discover();
-            while(i < results.Count() - 1)
+            while(i < results.Length)
             {
                 if(results[i].MediumType == Knx.Bus.Common.MediumTypes.Tp && results[i].FriendlyName == "Gira X1")
                 {
                     var ip = results[i].IpAddress;
                     Ip = ip.ToString();
                     InterfaceName = results[i].FriendlyName;
-                    bus = new Bus(new KnxIpTunnelingConnectorParameters(Ip, 0x0e57, false));
+                    bus = new(new KnxIpTunnelingConnectorParameters(Ip, 0x0e57, false));
                     break;
                 }
                 i++;

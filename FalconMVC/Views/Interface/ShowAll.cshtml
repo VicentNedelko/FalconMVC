@@ -12,22 +12,22 @@
         <table align="left" border="1">
             <thead>
                 <tr>
-                    <th>Name</th>
-                    <th>IP Address</th>
-                    <th>Individual Address</th>
-                    <th>MAC</th>
-                    <th>Use it ?</th>
+                    <th style="width:80px; text-align:center">Name</th>
+                    <th style="width:150px; text-align:center">IP Address</th>
+                    <th style="width:120px; text-align:center">Individual Address</th>
+                    <th style="width:150px; text-align:center">MAC</th>
+                    <th style="width:80px; text-align:center">Use it ?</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach(var i in ViewBag.Interfaces)
                 {
                     <tr>
-                        <td>@i.FriendlyName</td>
-                        <td>@i.IpAddress</td>
-                        <td>@i.IndividualAddress</td>
-                        <td>@i.MacAddress</td>
-                        <td>
+                        <td style="text-align:center">@i.FriendlyName</td>
+                        <td style="text-align:center">@i.IpAddress</td>
+                        <td style="text-align:center">@i.IndividualAddress</td>
+                        <td style="text-align:center">@i.MacAddress</td>
+                        <td style="justify-content:center">
                             <input type="radio" value=@i.IpAddress.ToString() name="checkInterface"  id=@i.IpAddress.ToString() onchange="javascript: GetInterfaceIP(this)"/> 
                         </td>
                     </tr>    
