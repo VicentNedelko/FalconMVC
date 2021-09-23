@@ -25,22 +25,29 @@ namespace FalconMVC.Managers
 
         private readonly IWebHostEnvironment _env;
 
+        private List<GA> GAList
+        {
+            get
+            {
+                using StreamReader sr = new(Path.Combine(_env.WebRootPath, "gaList.json"));
+                var str = sr.ReadToEnd();
+                return JsonSerializer.Deserialize<List<GA>>(str);
+            }
+        }
 
         public BusMonitor(IInterfaceConnect connection, IWebHostEnvironment env)
         {
-
             _connection = connection;
             _env = env;
         }
+
         public void Start()
         {
-            List<GA> gaList;
-            var jsonPath = Path.Combine(_env.WebRootPath, "gaList.json");
-            using (StreamReader sr = new(jsonPath))
+            // clear monitoring.txt
+            using (StreamWriter sw = new(Path.Combine(_env.WebRootPath, "gaList.json"), false))
             {
-                var json = sr.ReadToEnd();
-                gaList = JsonSerializer.Deserialize<List<GA>>(json);
-                sr.Close();
+                sw.Write(string.Empty);
+                sw.Close();
             }
             _connection.bus.Connect();
             _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
@@ -75,10 +82,22 @@ namespace FalconMVC.Managers
 
         private void Bus_GroupValueReceived(GroupValueEventArgs obj)
         {
-            using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
-            streamWriter.WriteLine($"{obj.Address} - {obj.Value} - {DateTime.Now.ToShortTimeString()}");
-            streamWriter.Flush();
-            streamWriter.Close();
+            if(GAList.Any(ga => ga.GAddress == obj.Address.ToString()))
+            {
+                var gaVerified = GAList.First(ga => ga.GAddress == obj.Address.ToString());
+                var convertedValueFull = gaVerified.GType switch
+                {
+                    DptType.Temperature => string.Concat(new Dpt9().ToTypedValue(obj.Value).ToString(), " °C"),
+                    DptType.Percent => string.Concat(new Dpt5().ToTypedValue(obj.Value).ToString(), " %"),
+                    DptType.Switch => new Dpt2().ToTypedValue(obj.Value).ToString(),
+                    DptType.Unknown => obj.Value.ToString(),
+                    _ => obj.Value.ToString(),
+                };
+                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
+                streamWriter.WriteLine($"{obj.Address} - {convertedValueFull} - {DateTime.Now}");
+                streamWriter.Flush();
+                streamWriter.Close();
+            }
         }
 
     }
