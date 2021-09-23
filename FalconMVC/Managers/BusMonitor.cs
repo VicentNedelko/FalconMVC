@@ -42,18 +42,24 @@ namespace FalconMVC.Managers
                 gaList = JsonSerializer.Deserialize<List<GA>>(json);
                 sr.Close();
             }
-            Task monitoringTask = new(() => Monitoring(gaList));
-            monitoringTask.Start();
+            _connection.bus.Connect();
+            _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
+        }
+
+        private void Bus_GroupValueReceived1(GroupValueEventArgs obj)
+        {
+            throw new NotImplementedException();
         }
 
         public void Stop()
         {
+            _connection.bus.GroupValueReceived -= Bus_GroupValueReceived;
             _connection.bus.Disconnect();
         }
 
         public string GetInterfaceInfo()
         {
-            if(_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
+            if(_connection.bus.State == BusConnectionStatus.Connected)
             {
                 return _connection.bus.GetLocalConfiguration().ToString();
             }
@@ -72,58 +78,13 @@ namespace FalconMVC.Managers
             };
         }
 
-        private void Monitoring(List<GA> gaMonitoringList)
-        {
-            using (_connection.bus)
-            {
-                _connection.bus.Connect();
-                _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
-                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
-                while (_connection.bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
-                {
-                    float convertedValue;
-                    GroupValue rawValue;
-                    foreach (var gaValue in gaMonitoringList)
-                    {
-                        try
-                        {
-                            rawValue = _connection.bus.ReadValue(gaValue.GAddress);
-                        }
-                        catch (Knx.Bus.Common.Exceptions.ConnectionException)
-                        {
-                            rawValue = new(false);
-                        }
-
-                        switch (gaValue.GType)
-                        {
-                            case (DptType.Switch or DptType.Unknown):
-                                streamWriter.WriteLine($"{gaValue.GAddress} - {rawValue} - {DateTime.Now.ToShortTimeString()}");
-                                break;
-                            case DptType.Temperature:
-                                convertedValue = new Dpt9().ToTypedValue(rawValue);
-                                streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} °C - {DateTime.Now.ToShortTimeString()}");
-                                break;
-                            case DptType.Percent:
-                                convertedValue = new Dpt5().ToTypedValue(rawValue);
-                                streamWriter.WriteLine($"{gaValue.GAddress} - {convertedValue} % - {DateTime.Now.ToShortTimeString()}");
-                                break;
-                        }
-                    }
-                    Thread.Sleep(2000);
-                }
-                streamWriter.Flush();
-                streamWriter.Close();
-            }
-           
-
-        }
-
         private void Bus_GroupValueReceived(GroupValueEventArgs obj)
         {
-            if(obj.Address.ToString() == "0/4/7")
-            {
-
-            }
+            using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
+            streamWriter.WriteLine($"{obj.Address} - {obj.Value} - {DateTime.Now.ToShortTimeString()}");
+            streamWriter.Flush();
+            streamWriter.Close();
         }
+
     }
 }
