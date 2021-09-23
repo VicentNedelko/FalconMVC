@@ -46,11 +46,6 @@ namespace FalconMVC.Managers
             _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
         }
 
-        private void Bus_GroupValueReceived1(GroupValueEventArgs obj)
-        {
-            throw new NotImplementedException();
-        }
-
         public void Stop()
         {
             _connection.bus.GroupValueReceived -= Bus_GroupValueReceived;
