@@ -44,7 +44,7 @@ namespace FalconMVC.Managers
         public void Start()
         {
             // clear monitoring.txt
-            using (StreamWriter sw = new(Path.Combine(_env.WebRootPath, "gaList.json"), false))
+            using (StreamWriter sw = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), false))
             {
                 sw.Write(string.Empty);
                 sw.Close();

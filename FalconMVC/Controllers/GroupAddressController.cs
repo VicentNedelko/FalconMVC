@@ -143,8 +143,15 @@ namespace FalconMVC.Controllers
 
         }
 
+        public IActionResult RemoveGAWithTh(string address)
+        {
+            var gaThList = GetGAWithThFromFile();
+            var itemToRemove = gaThList.Single(ga => ga.GAddress == address);
+            gaThList.Remove(itemToRemove);
+            WriteGAWithThToFile(gaThList);
+            return RedirectToAction("Thresholds");
+        }
 
-        // Thresholds
 
         [HttpGet]
         public IActionResult AddArchive()

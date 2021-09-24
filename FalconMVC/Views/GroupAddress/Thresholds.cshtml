@@ -2,7 +2,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @model List<GAwithThreshold>
-
+<body onload="javascript: SetDefaultState();">
 <h6>Notifications Manager</h6>
 
 <form asp-controller="GroupAddress" asp-action="AddThresholdGA">
@@ -37,42 +37,83 @@
     <input type="submit" value="Add GA with Th" /><br />
 </form><br />
 
-<form asp-controller="GroupAddress" asp-action="Thresholds">
-<div>
-        @if(Model is not null && Model.Count != 0)
-        {
-            <fieldset>
-                <legend>GA list</legend>
-                    <table border="1" style="margin-bottom:20px">
-                        <thead>
-                            <tr>
-                                <th style="text-align:center">ID</th><th style="text-align:center">Address</th><th style="text-align:center">Type</th><th style="text-align:center">Description</th><th style="text-align:center">Min value</th><th style="text-align:center">Max value</th><th style="text-align:center">Remove</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach(var ga in Model)
-                            {
+    <form asp-controller="GroupAddress" asp-action="Thresholds">
+        <div>
+            @if(Model is not null && Model.Count != 0)
+            {
+                <fieldset>
+                    <legend>GA list</legend>
+                        <table border="1" style="margin-bottom:20px">
+                            <thead>
                                 <tr>
-                                    <td style="width:80px; text-align:center">@ga.Id.ToString().Substring(0, 5)</td>
-                                    <td style="width:120px; text-align:center">@ga.GAddress</td>
-                                    <td style="width:120px; text-align:center">@ga.GType</td>
-                                    <td style="width:180px; text-align:center">@ga.Description</td>
-                                    <td style="width:100px; text-align:center">@ga.ThresholdMin</td>
-                                    <td style="width:100px; text-align:center">@ga.ThresholdMax</td>
-                                    <td style="width:80px; text-align:center"><a asp-controller="GroupAddress" asp-action="RemoveGAWithTh" asp-route-id="@ga.Id">Remove</a></td>
+                                    <th style="text-align:center">ID</th><th style="text-align:center">Address</th><th style="text-align:center">Type</th><th style="text-align:center">Description</th><th style="text-align:center">Min value</th><th style="text-align:center">Max value</th><th style="text-align:center">Remove</th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-            </fieldset>
-            <button id="StartNotifier" style="font-size: 20px; width:100px; text-align:center; color: blue; margin-right:20px">Start NS</button>
-            <button id="StopNotifier" style="color: red; text-align:center; font-size: 20px; width:100px;">Stop NS</button>
+                            </thead>
+                            <tbody>
+                            @foreach(var ga in Model)
+                                {
+                                    <tr>
+                                        <td style="width:80px; text-align:center">@ga.Id.ToString().Substring(0, 5)</td>
+                                        <td style="width:120px; text-align:center">@ga.GAddress</td>
+                                        <td style="width:120px; text-align:center">@ga.GType</td>
+                                        <td style="width:180px; text-align:center">@ga.Description</td>
+                                        <td style="width:100px; text-align:center">@ga.ThresholdMin</td>
+                                        <td style="width:100px; text-align:center">@ga.ThresholdMax</td>
+                                        <td style="width:80px; text-align:center"><a asp-controller="GroupAddress" asp-action="RemoveGAWithTh" asp-route-address="@ga.GAddress">Remove</a></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                </fieldset>
+                <button id="StartNotifier" onclick="javascript:StartNotifier();" style="font-size: 20px; width:100px; text-align:center; color: blue; margin-right:20px">Start NS</button>
+                <button id="StopNotifier" onclick="javascript:StopNotifier();" style="color: red; text-align:center; font-size: 20px; width:100px;">Stop NS</button>
 
+            }
+            else
+            {
+                <h6>List is empty. Add new GA.</h6>
+            }
+
+        </div>
+    </form>
+
+</body>
+
+<script type="text/javascript">
+    function StartNotifier()
+    {
+        document.querySelector('#StartNotifier').disabled = true;
+        document.querySelector('#StopNotifier').disabled = false;
+        localStorage.setItem("notificationState", "start");
+        document.location = '@Url.Action("StartNotificator","GroupAddress")';
+    }
+
+    function StopNotifier()
+    {
+        document.querySelector('#StopNotifier').disabled = true;
+        document.querySelector('#StartNotifier').disabled = false;
+        localStorage.setItem("notificationState", "stop");
+        document.location = '@Url.Action("StopNotificator", "GroupAddress")';
+    }
+
+        function SetDefaultState()
+    {
+        var state = localStorage.getItem("notificationState");
+        if (state === null)
+        {
+            document.querySelector('#StartNotifier').disabled = false;
+            document.querySelector('#StopNotifier').disabled = true;
+            localStorage.setItem("notificationState", "stop");
+        }
+        else if (state == "start")
+        {
+            document.querySelector('#StartNotifier').disabled = true;
+            document.querySelector('#StopNotifier').disabled = false;
         }
         else
         {
-            <h6>List is empty. Add new GA.</h6>
+            document.querySelector('#StartNotifier').disabled = false;
+            document.querySelector('#StopNotifier').disabled = true;
         }
-
-</div>
-</form>
+    }
+</script>
