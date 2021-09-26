@@ -1,4 +1,5 @@
-﻿using Knx.Falcon.Sdk;
+﻿using FalconMVC.ViewModels;
+using Knx.Falcon.Sdk;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,8 +9,10 @@ namespace FalconMVC.Managers
 {
     public interface IMonitor
     {
-        public string GetInterfaceInfo();
+        public InterfaceVM GetInterfaceData();
         public void Start();
         public void Stop();
+        public void StartNotificator();
+        public void StopNotificator();
     }
 }

@@ -2,8 +2,13 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @model List<GA>
+
+@using FalconMVC.ViewModels
+
 <body onload="javascript: SetDefaultState();">
 <h6>GA Archive manager</h6>
+<partial name="_ShowInterfaceInfo" model="(InterfaceVM)ViewBag.InterfaceData">
+
 <form asp-controller="GroupAddress" asp-action="AddArchive">
 <table>
     <tbody>

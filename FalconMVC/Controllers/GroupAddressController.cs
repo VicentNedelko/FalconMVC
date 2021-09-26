@@ -1,5 +1,7 @@
-﻿using FalconMVC.Managers;
+﻿using FalconMVC.Globals;
+using FalconMVC.Managers;
 using FalconMVC.Models;
+using FalconMVC.ViewModels;
 using Knx.Bus.Common;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +33,7 @@ namespace FalconMVC.Controllers
             _tbot = tbot;
             _env = env;
         }
+
 
         public List<GA> GetGAFromFile()
         {
@@ -147,15 +150,31 @@ namespace FalconMVC.Controllers
         {
             var gaThList = GetGAWithThFromFile();
             var itemToRemove = gaThList.Single(ga => ga.GAddress == address);
-            gaThList.Remove(itemToRemove);
-            WriteGAWithThToFile(gaThList);
-            return RedirectToAction("Thresholds");
+            if(itemToRemove is not null)
+            {
+                gaThList.Remove(itemToRemove);
+                WriteGAWithThToFile(gaThList);
+                return RedirectToAction("Thresholds");
+            }
+            else
+            {
+                ViewBag.Error = "Error! GA didn't find in JSON list.";
+                return View("Error");
+            }
         }
+
+        public void StartNotificator()
+        {
+            var gaThList = GetGAWithThFromFile();
+        }
+
+
 
 
         [HttpGet]
         public IActionResult AddArchive()
         {
+            ViewBag.InterfaceData = _monitor.GetInterfaceData();
             return View(GetGAFromFile());
         }
 

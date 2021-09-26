@@ -16,12 +16,14 @@ using Microsoft.AspNetCore.Hosting;
 using System.Text.Json;
 using Knx.Bus.Common.Configuration;
 using Knx.Bus.Common;
+using FalconMVC.Globals;
+using FalconMVC.ViewModels;
 
 namespace FalconMVC.Managers
 {
     public class BusMonitor : IMonitor
     {
-        private IInterfaceConnect _connection { set; get; }
+        private readonly IInterfaceConnect _connection;
 
         private readonly IWebHostEnvironment _env;
 
@@ -29,7 +31,7 @@ namespace FalconMVC.Managers
         {
             get
             {
-                using StreamReader sr = new(Path.Combine(_env.WebRootPath, "gaList.json"));
+                using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAList));
                 var str = sr.ReadToEnd();
                 return JsonSerializer.Deserialize<List<GA>>(str);
             }
@@ -41,22 +43,48 @@ namespace FalconMVC.Managers
             _env = env;
         }
 
+        public InterfaceVM GetInterfaceData()
+        {
+            InterfaceVM interfaceVM;
+            if(_connection.Ip is not null)
+            {
+                interfaceVM = new InterfaceVM
+                {
+                    Ip = _connection.Ip,
+                    FriendlyName = _connection.InterfaceName,
+                    State = _connection.bus.State.ToString(),
+                };
+            }
+            else
+            {
+                interfaceVM = new InterfaceVM
+                {
+                    Ip = "Not connected",
+                    FriendlyName = "Not connected",
+                    State = "Not connected",
+                };
+            }
+            return interfaceVM;
+        }
+
         public void Start()
         {
-            // clear monitoring.txt
-            using (StreamWriter sw = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), false))
+            // clear monitoring file
+            using (StreamWriter sw = new(Path.Combine(_env.WebRootPath, Secret.GAMonitor), false))
             {
                 sw.Write(string.Empty);
                 sw.Close();
             }
-            _connection.bus.Connect();
+            if(_connection.bus.State != BusConnectionStatus.Connected)
+            {
+                _connection.bus.Connect();
+            }
             _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
         }
 
         public void Stop()
         {
             _connection.bus.GroupValueReceived -= Bus_GroupValueReceived;
-            _connection.bus.Disconnect();
         }
 
         public string GetInterfaceInfo()
@@ -93,12 +121,34 @@ namespace FalconMVC.Managers
                     DptType.Unknown => obj.Value.ToString(),
                     _ => obj.Value.ToString(),
                 };
-                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, "monitoring.txt"), true);
+                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, Secret.GAMonitor), true);
                 streamWriter.WriteLine($"{obj.Address} - {convertedValueFull} - {DateTime.Now}");
                 streamWriter.Flush();
                 streamWriter.Close();
             }
         }
 
+        public void StartNotificator()
+        {
+            // clear monitoring notificator file
+            using StreamWriter sw = new(Path.Combine(_env.WebRootPath, Secret.GAWithThMonitor));
+            sw.Write(string.Empty);
+            sw.Close();
+            if(_connection.bus.State != BusConnectionStatus.Connected)
+            {
+                _connection.bus.Connect();
+            }
+            _connection.bus.GroupValueReceived += Bus_GroupValueReceivedNotify;
+        }
+
+        private void Bus_GroupValueReceivedNotify(GroupValueEventArgs obj)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void StopNotificator()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
