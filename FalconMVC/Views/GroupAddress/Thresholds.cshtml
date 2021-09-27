@@ -2,9 +2,12 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 @model List<GAwithThreshold>
+@using FalconMVC.ViewModels
+
 <body onload="javascript: SetDefaultState();">
 <h6>Notifications Manager</h6>
 
+    <partial name="_ShowInterfaceInfo" model="(InterfaceVM)ViewBag.InterfaceData">
 <form asp-controller="GroupAddress" asp-action="AddThresholdGA">
 <table>
     <tbody>

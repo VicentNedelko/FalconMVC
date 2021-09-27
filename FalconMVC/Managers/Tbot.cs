@@ -1,10 +1,10 @@
 ﻿using FalconMVC.Globals;
 using FalconMVC.Models.BotModels;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
@@ -15,24 +15,18 @@ namespace FalconMVC.Managers
     public class Tbot : IBot
     {
         private static ITelegramBotClient telegramBotClient;
-        private readonly string baseUri = "https://api.telegram.org/";
-        public async Task SendMessageAsync(string message)
+        //private readonly string baseUri = "https://api.telegram.org/";
+
+        public Tbot()
         {
             telegramBotClient = new TelegramBotClient(token: Secret.Tbot);
+        }
+        public async Task SendMessageAsync(string message)
+        {
             _ = await telegramBotClient.SendTextMessageAsync(
-                chatId: await GetChatIdAsync(),
+                chatId: Secret.BotName,
                 text: message,
                 disableNotification: false);
-        }
-
-        public async Task<long> GetChatIdAsync()
-        {
-            string reqPath = String.Concat(baseUri, "bot", Secret.Tbot, "/getUpdates");
-            Uri request = new(reqPath);
-            HttpClient httpClient = new();
-            var responce = await httpClient.GetAsync(request);
-            var updateResponce = JsonConvert.DeserializeObject<Root>(await responce.Content.ReadAsStringAsync());
-            return updateResponce.Result.FirstOrDefault().Message.Chat.Id;
         }
 
     }

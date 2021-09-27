@@ -115,6 +115,7 @@ namespace FalconMVC.Controllers
         [HttpGet]
         public IActionResult Thresholds()
         {
+            ViewBag.InterfaceData = _monitor.GetInterfaceData();
             var listModel = GetGAWithThFromFile();
             return View(listModel);
         }
@@ -165,10 +166,13 @@ namespace FalconMVC.Controllers
 
         public void StartNotificator()
         {
-            var gaThList = GetGAWithThFromFile();
+            _monitor.StartNotificator();
         }
 
-
+        public void StopNotificator()
+        {
+            _monitor.StopNotificator();
+        }
 
 
         [HttpGet]
