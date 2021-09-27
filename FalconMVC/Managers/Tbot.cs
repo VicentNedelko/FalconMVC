@@ -20,6 +20,7 @@ namespace FalconMVC.Managers
         public Tbot()
         {
             telegramBotClient = new TelegramBotClient(token: Secret.Tbot);
+            telegramBotClient.StartReceiving();
         }
         public async Task SendMessageAsync(string message)
         {

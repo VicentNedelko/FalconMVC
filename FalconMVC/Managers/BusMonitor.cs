@@ -143,7 +143,7 @@ namespace FalconMVC.Managers
 
         private void Bus_GroupValueReceivedNotify(GroupValueEventArgs obj)
         {
-            throw new NotImplementedException();
+            throw new NotImplementedException(); // StartReceiving();  ?
         }
 
         public void StopNotificator()
