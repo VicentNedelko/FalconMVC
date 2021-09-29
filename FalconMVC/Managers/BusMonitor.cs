@@ -26,21 +26,31 @@ namespace FalconMVC.Managers
         private readonly IInterfaceConnect _connection;
 
         private readonly IWebHostEnvironment _env;
+        private readonly IBot _bot;
 
         private List<GA> GAList
         {
             get
             {
                 using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAList));
-                var str = sr.ReadToEnd();
-                return JsonSerializer.Deserialize<List<GA>>(str);
+                return JsonSerializer.Deserialize<List<GA>>(sr.ReadToEnd());
             }
         }
 
-        public BusMonitor(IInterfaceConnect connection, IWebHostEnvironment env)
+        private List<GAwithThreshold> GaThList
+        {
+            get
+            {
+                using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAThList));
+                return JsonSerializer.Deserialize<List<GAwithThreshold>>(sr.ReadToEnd());
+            }
+        }
+
+        public BusMonitor(IInterfaceConnect connection, IWebHostEnvironment env, IBot bot)
         {
             _connection = connection;
             _env = env;
+            _bot = bot;
         }
 
         public InterfaceVM GetInterfaceData()
@@ -118,7 +128,6 @@ namespace FalconMVC.Managers
                     DptType.Temperature => string.Concat(new Dpt9().ToTypedValue(obj.Value).ToString(), " °C"),
                     DptType.Percent => string.Concat(new Dpt5().ToTypedValue(obj.Value).ToString(), " %"),
                     DptType.Switch => new Dpt2().ToTypedValue(obj.Value).ToString(),
-                    DptType.Unknown => obj.Value.ToString(),
                     _ => obj.Value.ToString(),
                 };
                 using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, Secret.GAMonitor), true);
@@ -143,12 +152,71 @@ namespace FalconMVC.Managers
 
         private void Bus_GroupValueReceivedNotify(GroupValueEventArgs obj)
         {
-            throw new NotImplementedException(); // StartReceiving();  ?
+            // StartReceiving();  ?
+            if(GaThList.Any(gaTh => gaTh.GAddress == obj.Address))
+            {
+                var processedValue = GaThList.First(gaTh => gaTh.GAddress == obj.Address);
+                switch (processedValue.GType)
+                {
+                    case DptType.Temperature:
+                        var valueToCheckTemp = new Dpt9().ToTypedValue(obj.Value);
+                        if(((float)processedValue.ThresholdMax <= valueToCheckTemp
+                            || (float)processedValue.ThresholdMin > valueToCheckTemp)
+                            && !processedValue.IsCheck)
+                        {
+                            SendGAThValueTemperature(processedValue, valueToCheckTemp);
+                            WriteWarningToFile($"Warning!  {processedValue.Description} - {valueToCheckTemp} °C");
+                            processedValue.IsCheck = true;
+                        }
+                        else if(((float)processedValue.ThresholdMax > valueToCheckTemp
+                            && (float)processedValue.ThresholdMin < valueToCheckTemp)
+                            && processedValue.IsCheck)
+                        {
+                            processedValue.IsCheck = false;
+                        }
+                        break;
+                    case DptType.Percent:
+                        var valueToCheckPercent = new Dpt5().ToTypedValue(obj.Value);
+                        SendGAThValuePercent(processedValue, valueToCheckPercent);
+                        break;
+                    case DptType.Switch:
+                        var valueToCheckSwitch = new Dpt1().ToTypedValue(obj.Value);
+                        SendGAThValueSwitch(processedValue, valueToCheckSwitch);
+                        break;
+                };
+
+
+            };
+
         }
 
         public void StopNotificator()
         {
             throw new NotImplementedException();
         }
+
+        public void SendGAThValueTemperature(GAwithThreshold sample, float value)
+        {
+            _bot.SendMessageAsync($"Warning!  {sample.Description} - {value} °C");
+        }
+
+        public void SendGAThValuePercent(GAwithThreshold sample, byte value)
+        {
+            _bot.SendMessageAsync($"Warning! {sample.Description} - {value} %");
+        }
+
+        public void SendGAThValueSwitch(GAwithThreshold sample, bool value)
+        {
+            _bot.SendMessageAsync($"Warning! {sample.Description} - {value} state.");
+        }
+
+        private void WriteWarningToFile(string message)
+        {
+            using StreamWriter sw = new(Path.Combine(_env.WebRootPath, Secret.GAWithThMonitor), true);
+            sw.WriteLine(message);
+            sw.Flush();
+            sw.Close();
+        }
+
     }
 }

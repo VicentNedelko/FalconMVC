@@ -24,8 +24,8 @@ namespace FalconMVC.Managers
         }
         public async Task SendMessageAsync(string message)
         {
-            _ = await telegramBotClient.SendTextMessageAsync(
-                chatId: Secret.BotName,
+            var result = await telegramBotClient.SendTextMessageAsync(
+                chatId: Secret.GIRAChatId,
                 text: message,
                 disableNotification: false);
         }

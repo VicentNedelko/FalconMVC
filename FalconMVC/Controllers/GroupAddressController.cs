@@ -116,11 +116,11 @@ namespace FalconMVC.Controllers
         public IActionResult Thresholds()
         {
             ViewBag.InterfaceData = _monitor.GetInterfaceData();
-            var listModel = GetGAWithThFromFile();
-            return View(listModel);
+            return View(GetGAWithThFromFile());
         }
 
-        public IActionResult AddThresholdGA(string nameGA, string descriptionGA, string typeGA, decimal maxValue, decimal minValue)
+        [HttpPost]
+        public IActionResult Thresholds(string nameGA, string descriptionGA, string typeGA, decimal maxValue, decimal minValue)
         {
             if (_regex.IsMatch(nameGA))
             {
@@ -143,7 +143,8 @@ namespace FalconMVC.Controllers
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";
                 return View("Error");
             }
-            return RedirectToAction("Thresholds");
+            ViewBag.InterfaceData = _monitor.GetInterfaceData();
+            return View(GetGAWithThFromFile());
 
         }
 
@@ -164,14 +165,16 @@ namespace FalconMVC.Controllers
             }
         }
 
-        public void StartNotificator()
+        public IActionResult StartNotificator()
         {
             _monitor.StartNotificator();
+            return RedirectToAction("Thresholds");
         }
 
-        public void StopNotificator()
+        public IActionResult StopNotificator()
         {
             _monitor.StopNotificator();
+            return RedirectToAction("Thresholds");
         }
 
 
@@ -193,6 +196,7 @@ namespace FalconMVC.Controllers
                     listGA.Add(new GA { Id = Guid.NewGuid(), GAddress = nameGA, GType = BusMonitor.DPTConvert(typeGA), Description = descriptionGA });
                     WriteGAToFile(listGA);
                     //await _tbot.SendMessageAsync($"new GA {nameGA} added");
+                    ViewBag.InterfaceData = _monitor.GetInterfaceData();
                     return View(GetGAFromFile());
                 }
                 ViewBag.Error = "GA doesn't correspond the 3-level pattern - __/__/__.";

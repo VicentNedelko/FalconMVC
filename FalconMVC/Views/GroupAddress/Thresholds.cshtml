@@ -7,8 +7,8 @@
 <body onload="javascript: SetDefaultState();">
 <h6>Notifications Manager</h6>
 
-    <partial name="_ShowInterfaceInfo" model="(InterfaceVM)ViewBag.InterfaceData">
-<form asp-controller="GroupAddress" asp-action="AddThresholdGA">
+<partial name="_ShowInterfaceInfo" model="(InterfaceVM)ViewBag.InterfaceData">
+<form asp-controller="GroupAddress" asp-action="Thresholds">
 <table>
     <tbody>
         <tr>
@@ -23,8 +23,10 @@
                 <input list="types" name="typeGA" placeholder="Enter GA Type"/>
                 <datalist id="types">
                     <option value="Temperature"></option>
+                    <option value="Brightness"></option>
                     <option value="Switch"></option>
                     <option value="Percent"></option>
+                    <option value="Raw data"></option>
                 </datalist>
             </td>
         </tr>
@@ -40,7 +42,6 @@
     <input type="submit" value="Add GA with Th" /><br />
 </form><br />
 
-    <form asp-controller="GroupAddress" asp-action="Thresholds">
         <div>
             @if(Model is not null && Model.Count != 0)
             {
@@ -78,7 +79,6 @@
             }
 
         </div>
-    </form>
 
 </body>
 

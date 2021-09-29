@@ -1,1 +1,1 @@
-[{"Id":"8df18383-5a33-4bfa-83b2-868f13916876","GAddress":"0/1/0","GType":9,"Description":"temp","ThresholdMin":22,"ThresholdMax":24,"IsCheck":false},{"Id":"e215ab23-b05d-4378-9bb7-3812ad934159","GAddress":"1/5/14","GType":5,"Description":"br value","ThresholdMin":0,"ThresholdMax":50,"IsCheck":false}]
+[{"Id":"c2febd29-9cfc-406b-8b03-7c76f787d899","GAddress":"0/4/7","GType":9,"Description":"brightness showroom","ThresholdMin":850,"ThresholdMax":1000,"IsCheck":false}]
