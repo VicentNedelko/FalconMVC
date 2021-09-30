@@ -28,29 +28,21 @@ namespace FalconMVC.Managers
         private readonly IWebHostEnvironment _env;
         private readonly IBot _bot;
 
-        private List<GA> GAList
-        {
-            get
-            {
-                using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAList));
-                return JsonSerializer.Deserialize<List<GA>>(sr.ReadToEnd());
-            }
-        }
+        private List<GA> GAList { get; set; }
 
-        private List<GAwithThreshold> GaThList
-        {
-            get
-            {
-                using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAThList));
-                return JsonSerializer.Deserialize<List<GAwithThreshold>>(sr.ReadToEnd());
-            }
-        }
+        private List<GAwithThreshold> GaThList { get; set; }
 
         public BusMonitor(IInterfaceConnect connection, IWebHostEnvironment env, IBot bot)
         {
             _connection = connection;
             _env = env;
             _bot = bot;
+            GaThList = new List<GAwithThreshold>();
+            GAList = new List<GA>();
+            using StreamReader srTh = new(Path.Combine(_env.WebRootPath, Secret.GAThList));
+            GaThList =  JsonSerializer.Deserialize<List<GAwithThreshold>>(srTh.ReadToEnd());
+            using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAList));
+            GAList = JsonSerializer.Deserialize<List<GA>>(sr.ReadToEnd());
         }
 
         public InterfaceVM GetInterfaceData()
@@ -114,6 +106,7 @@ namespace FalconMVC.Managers
                 "Switch" => DptType.Switch,
                 "Temperature" => DptType.Temperature,
                 "Percent" => DptType.Percent,
+                "Brightness" => DptType.Brightness,
                 _ => DptType.Unknown,
             };
         }
@@ -125,6 +118,7 @@ namespace FalconMVC.Managers
                 var gaVerified = GAList.First(ga => ga.GAddress == obj.Address.ToString());
                 var convertedValueFull = gaVerified.GType switch
                 {
+                    DptType.Brightness => string.Concat(new Dpt9().ToTypedValue(obj.Value).ToString(), " lux"),
                     DptType.Temperature => string.Concat(new Dpt9().ToTypedValue(obj.Value).ToString(), " °C"),
                     DptType.Percent => string.Concat(new Dpt5().ToTypedValue(obj.Value).ToString(), " %"),
                     DptType.Switch => new Dpt2().ToTypedValue(obj.Value).ToString(),
@@ -166,33 +160,78 @@ namespace FalconMVC.Managers
                         {
                             SendGAThValueTemperature(processedValue, valueToCheckTemp);
                             WriteWarningToFile($"Warning!  {processedValue.Description} - {valueToCheckTemp} °C");
-                            processedValue.IsCheck = true;
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = true;
                         }
                         else if(((float)processedValue.ThresholdMax > valueToCheckTemp
                             && (float)processedValue.ThresholdMin < valueToCheckTemp)
                             && processedValue.IsCheck)
                         {
-                            processedValue.IsCheck = false;
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = false;
                         }
                         break;
                     case DptType.Percent:
                         var valueToCheckPercent = new Dpt5().ToTypedValue(obj.Value);
-                        SendGAThValuePercent(processedValue, valueToCheckPercent);
+                        if(((byte)processedValue.ThresholdMax <= valueToCheckPercent
+                            || (byte)processedValue.ThresholdMin > valueToCheckPercent)
+                            && !processedValue.IsCheck)
+                        {
+                            SendGAThValuePercent(processedValue, valueToCheckPercent);
+                            WriteWarningToFile($"Warning! {processedValue.Description} - {valueToCheckPercent} %");
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = true;
+                        }
+                        else if(((byte)processedValue.ThresholdMax > valueToCheckPercent
+                            && (byte)processedValue.ThresholdMin < valueToCheckPercent)
+                            && processedValue.IsCheck)
+                        {
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = false;
+                        }
                         break;
                     case DptType.Switch:
                         var valueToCheckSwitch = new Dpt1().ToTypedValue(obj.Value);
-                        SendGAThValueSwitch(processedValue, valueToCheckSwitch);
+                        if (valueToCheckSwitch && !processedValue.IsCheck)
+                        {
+                            SendGAThValueSwitch(processedValue, valueToCheckSwitch);
+                            WriteWarningToFile($"Warning! {processedValue.Description} - {valueToCheckSwitch} state");
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = true;
+                        }
+                        else if(!valueToCheckSwitch && processedValue.IsCheck)
+                        {
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = false;
+                        }
+                        break;
+                    case DptType.Brightness:
+                        var valueToCheckBrightness = new Dpt9().ToTypedValue(obj.Value);
+                        if (((float)processedValue.ThresholdMax <= valueToCheckBrightness
+                            || (float)processedValue.ThresholdMin > valueToCheckBrightness)
+                            && !processedValue.IsCheck)
+                        {
+                            SendGAThValueBrightness(processedValue, valueToCheckBrightness);
+                            WriteWarningToFile($"Warning! {processedValue.Description} - {valueToCheckBrightness} lux");
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = true;
+                        }
+                        else if (((float)processedValue.ThresholdMax > valueToCheckBrightness
+                            && (float)processedValue.ThresholdMin < valueToCheckBrightness)
+                            && processedValue.IsCheck)
+                        {
+                            var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
+                            GaThList[ind].IsCheck = false;
+                        }
                         break;
                 };
-
-
             };
 
         }
 
         public void StopNotificator()
         {
-            throw new NotImplementedException();
+            _connection.bus.GroupValueReceived -= Bus_GroupValueReceivedNotify;
         }
 
         public void SendGAThValueTemperature(GAwithThreshold sample, float value)
@@ -208,6 +247,11 @@ namespace FalconMVC.Managers
         public void SendGAThValueSwitch(GAwithThreshold sample, bool value)
         {
             _bot.SendMessageAsync($"Warning! {sample.Description} - {value} state.");
+        }
+
+        public void SendGAThValueBrightness(GAwithThreshold sample, float value)
+        {
+            _bot.SendMessageAsync($"Warning!  {sample.Description} - {value} lux");
         }
 
         private void WriteWarningToFile(string message)
