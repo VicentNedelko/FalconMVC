@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using FalconMVC.Managers;
+using FalconMVC.ViewModels;
 
 namespace FalconMVC.Controllers
 {
@@ -17,6 +18,27 @@ namespace FalconMVC.Controllers
         {
             _knxInterface = knxInterface;
         }
+
+        [HttpGet]
+        public IActionResult Index()
+        {
+            InterfaceVM interfaceVM = new();
+            if(_knxInterface.Ip is not null)
+            {
+                interfaceVM.Ip = _knxInterface.Ip;
+                interfaceVM.FriendlyName = _knxInterface.InterfaceName;
+                interfaceVM.State = _knxInterface.bus.State.ToString();
+            }
+            else
+            {
+                interfaceVM.Ip = "Undefined";
+                interfaceVM.FriendlyName = "Undefined";
+                interfaceVM.State = null;
+            }
+            ViewBag.InterfaceList = _knxInterface.Interfaces;
+            return View(interfaceVM);
+        }
+
 
         [HttpGet]
         public IActionResult ShowAll()

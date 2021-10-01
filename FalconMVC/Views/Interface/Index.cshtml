@@ -1,0 +1,35 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@model FalconMVC.ViewModels.InterfaceVM
+
+<h4>Current Interface</h4>
+<table>
+    <tbody>
+        <tr>
+            <td>IP : </td><td>@Model.Ip</td>
+        </tr>
+        <tr>
+            <td>Name : </td><td>@Model.FriendlyName</td>
+        </tr>
+    </tbody>
+</table>
+<br />
+<h4>Available Interfaces</h4>
+<table>
+    <thead>
+        <tr>
+            <th>IP</th><th>Name</th><th>Choose</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var i in ViewBag.InterfaceList)
+        {
+            <tr>
+                <td>@i.IpAddress</td><td>@i.FriendlyName</td><td><input type="radio" name="chooseInterface"/></td>
+            </tr>
+        }
+    </tbody>
+</table>
+

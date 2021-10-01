@@ -10,28 +10,15 @@ namespace FalconMVC.Managers
 {
     public class KnxIpInterface : IInterfaceConnect
     {
-        public Bus bus { get; set; } // use Discovery method as setter
+        public Bus bus { get; set; }
         public string InterfaceName { set; get; }
         public string Ip { set; get; }
+        public DiscoveryResult[] Interfaces { get; set; }
 
         public KnxIpInterface()
         {
-            int i = 0;
             DiscoveryClient discoveryClient = new(adapterType: AdapterTypes.All);
-            DiscoveryResult[] results = discoveryClient.Discover();
-            while(i < results.Length)
-            {
-                if(results[i].MediumType == Knx.Bus.Common.MediumTypes.Tp && results[i].FriendlyName == "Gira X1")
-                {
-                    var ip = results[i].IpAddress;
-                    Ip = ip.ToString();
-                    InterfaceName = results[i].FriendlyName;
-                    bus = new(new KnxIpTunnelingConnectorParameters(Ip, 0x0e57, false));
-                    break;
-                }
-                i++;
-            }
-
+            Interfaces = discoveryClient.Discover();
         }
 
         public void GetNewInterface(string interfaceIp)
