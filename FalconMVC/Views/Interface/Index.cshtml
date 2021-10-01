@@ -20,14 +20,14 @@
 <table>
     <thead>
         <tr>
-            <th>IP</th><th>Name</th><th>Choose</th>
+            <th class="table-">IP</th><th style="width:120px; text-align:center">Name</th><th style="width:50px; align-content:center">Choose</th>
         </tr>
     </thead>
     <tbody>
         @foreach(var i in ViewBag.InterfaceList)
         {
             <tr>
-                <td>@i.IpAddress</td><td>@i.FriendlyName</td><td><input type="radio" name="chooseInterface"/></td>
+                <td style="text-align:center">@i.IpAddress</td><td style="text-align:center">@i.FriendlyName</td><td style="align-content:center"><input type="radio" name="chooseInterface"/></td>
             </tr>
         }
     </tbody>

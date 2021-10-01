@@ -1,0 +1,15 @@
+﻿body {
+}
+
+table-num{
+    width: 30px;
+    text-align:center;
+}
+table-column{
+    width:120px;
+    text-align:center;
+}
+table-input{
+    width:60px;
+    align-content:center;
+}
