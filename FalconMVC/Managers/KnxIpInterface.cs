@@ -26,11 +26,10 @@ namespace FalconMVC.Managers
             if(bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
             {
                 bus.Disconnect();
-                bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
             }
             bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
             InterfaceName = bus.OpenParameters.Name;
-            Ip = "Unknown";
+            Ip = interfaceIp;
         }
 
 
@@ -44,6 +43,7 @@ namespace FalconMVC.Managers
                 {
                     return true;
                 }
+                bus.Disconnect();
                 return false;
             }
         }

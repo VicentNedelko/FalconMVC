@@ -39,31 +39,11 @@ namespace FalconMVC.Controllers
             return View(interfaceVM);
         }
 
-
-        [HttpGet]
-        public IActionResult ShowAll()
-        {
-            ViewBag.Interfaces = GetInterfacesList();
-            ViewBag.InterfaceName = _knxInterface.InterfaceName;
-            ViewBag.Ip = _knxInterface.Ip;
-            return View();
-        }
         [HttpPost]
-        public IActionResult ShowAll (string interfaceIP)
+        public IActionResult Index(string ip)
         {
-            if (_knxInterface.CheckConnection(interfaceIP))
-            {
-                _knxInterface.GetNewInterface(interfaceIP);
-                return RedirectToAction("ShowAll", "Interface");
-            }
-            return RedirectToAction("Index", "Home");
-        }
-
-        private DiscoveryResult[] GetInterfacesList()
-        {
-            DiscoveryClient discoveryClient = new DiscoveryClient(adapterType: AdapterTypes.All);
-            DiscoveryResult[] results = discoveryClient.Discover();
-            return results;
+            _knxInterface.GetNewInterface(ip);
+            return View(new InterfaceVM { Ip = _knxInterface.Ip, FriendlyName = _knxInterface.InterfaceName, State = _knxInterface.bus.State.ToString()});
         }
     }
 }

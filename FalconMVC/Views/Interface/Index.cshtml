@@ -8,28 +8,68 @@
 <table>
     <tbody>
         <tr>
-            <td>IP : </td><td>@Model.Ip</td>
+            <td>IP : </td>
+            <td>@Model.Ip</td>
         </tr>
         <tr>
-            <td>Name : </td><td>@Model.FriendlyName</td>
+            <td>Name : </td>
+            <td>@Model.FriendlyName</td>
         </tr>
     </tbody>
 </table>
+
 <br />
+
 <h4>Available Interfaces</h4>
-<table>
+<table border="1" id="interfaceList">
     <thead>
         <tr>
-            <th class="table-">IP</th><th style="width:120px; text-align:center">Name</th><th style="width:50px; align-content:center">Choose</th>
+            <th class="text-value">IP</th>
+            <th class="text-value">Name</th>
+            <th class="input-value">Choose</th>
         </tr>
     </thead>
     <tbody>
-        @foreach(var i in ViewBag.InterfaceList)
+        @if (ViewBag.InterfaceList.Length != 0)
+        {
+            @foreach (var i in ViewBag.InterfaceList)
+            {
+                <tr>
+                    <td style="text-align:center">@i.IpAddress</td>
+                    <td style="text-align:center">@i.FriendlyName</td>
+                    <td style="align-content:center"><input type="radio" name="chooseInterface" value="@i.IpAddress" /></td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td style="text-align:center">@i.IpAddress</td><td style="text-align:center">@i.FriendlyName</td><td style="align-content:center"><input type="radio" name="chooseInterface"/></td>
+                <td>Not found</td>
+                <td>Not found</td>
+                <td>Empty</td>
             </tr>
         }
     </tbody>
 </table>
+<br />
+
+<br />
+<form asp-controller="Interface" asp-action="Index" method="post">
+    <h6>Selected Interface</h6><br />
+    <table style="visibility:hidden" id="foundInterfaces" border="1">
+        <tbody>
+            <tr>
+                <td class="text-value">IP :</td>
+                <td id="selectedInterfaceIP" class="text-value"></td>
+            </tr>
+        </tbody>
+    </table><br />
+    <input name="ip" type="text" style="visibility:hidden" id="selectedIP" />
+    <input type="submit" value="Select" hidden="hidden" />     @* check the value send to server *@
+
+
+</form>
+
+<script src="~/js/site.js"></script>
+
 

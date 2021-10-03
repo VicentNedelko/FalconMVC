@@ -1,15 +1,16 @@
 ﻿body {
 }
 
-table-num{
+table
+.num{
     width: 30px;
     text-align:center;
 }
-table-column{
-    width:120px;
+.text-value{
+    width:150px;
     text-align:center;
 }
-table-input{
+.input-value{
     width:60px;
     align-content:center;
 }
