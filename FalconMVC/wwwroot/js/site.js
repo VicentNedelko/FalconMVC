@@ -12,9 +12,11 @@ radios.forEach(radios =>
 );
 
 function FillInterfaceForm(ip) {
-    document.querySelector('#selectedInterfaceIP').innerHTML = ip;
+    const selectedInterface = document.querySelector('#selectedInterfaceIP');
+    selectedInterface.innerHTML = ip;
     var intData = document.getElementById('foundInterfaces');
     intData.style.visibility = 'visible';
-    document.querySelector('#seletedIP').nodeValue = ip;
+    document.querySelector('#intLabel').style.visibility = 'visible';
+    document.querySelector('#selectedIP').value = ip;
     document.getElementById('submitBtn').style.visibility = 'visible';
 }

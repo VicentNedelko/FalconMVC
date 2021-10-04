@@ -23,12 +23,12 @@ namespace FalconMVC.Managers
 
         public void GetNewInterface(string interfaceIp)
         {
-            if(bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
+            if(bus is not null && bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
             {
                 bus.Disconnect();
             }
             bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
-            InterfaceName = bus.OpenParameters.Name;
+            InterfaceName = (Interfaces.FirstOrDefault(i => i.IpAddress.ToString() == interfaceIp)).FriendlyName;
             Ip = interfaceIp;
         }
 

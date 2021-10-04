@@ -34,11 +34,15 @@
         {
             @foreach (var i in ViewBag.InterfaceList)
             {
-                <tr>
+                if(@i.IpAddress.ToString() != Model.Ip)
+                {
+                 <tr>
                     <td style="text-align:center">@i.IpAddress</td>
                     <td style="text-align:center">@i.FriendlyName</td>
                     <td style="align-content:center"><input type="radio" name="chooseInterface" value="@i.IpAddress" /></td>
                 </tr>
+                }
+
             }
         }
         else
@@ -55,7 +59,7 @@
 
 <br />
 <form asp-controller="Interface" asp-action="Index" method="post">
-    <h6>Selected Interface</h6><br />
+    <h6 style="visibility:hidden" id="intLabel">Selected Interface</h6><br />
     <table style="visibility:hidden" id="foundInterfaces" border="1">
         <tbody>
             <tr>
@@ -64,8 +68,8 @@
             </tr>
         </tbody>
     </table><br />
-    <input name="ip" type="text" style="visibility:hidden" id="selectedIP" />
-    <input type="submit" value="Select" hidden="hidden" />     @* check the value send to server *@
+    <input name="ip" type="text" style="visibility:hidden" id="selectedIP" /><br />
+    <input id="submitBtn" type="submit" value="Select" style="visibility:hidden" />     @* check the value send to server *@
 
 
 </form>

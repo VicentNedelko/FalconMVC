@@ -23,7 +23,7 @@ namespace FalconMVC.Controllers
         public IActionResult Index()
         {
             InterfaceVM interfaceVM = new();
-            if(_knxInterface.Ip is not null)
+            if (_knxInterface.Ip is not null)
             {
                 interfaceVM.Ip = _knxInterface.Ip;
                 interfaceVM.FriendlyName = _knxInterface.InterfaceName;
@@ -43,7 +43,14 @@ namespace FalconMVC.Controllers
         public IActionResult Index(string ip)
         {
             _knxInterface.GetNewInterface(ip);
-            return View(new InterfaceVM { Ip = _knxInterface.Ip, FriendlyName = _knxInterface.InterfaceName, State = _knxInterface.bus.State.ToString()});
+            ViewBag.InterfaceList = _knxInterface.Interfaces;
+            var i = new InterfaceVM
+            {
+                Ip = _knxInterface.Ip,
+                FriendlyName = _knxInterface.InterfaceName,
+                State = _knxInterface.bus.State.ToString(),
+            };
+            return View(i);
         }
     }
 }
