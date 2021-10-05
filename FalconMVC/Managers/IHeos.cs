@@ -15,5 +15,9 @@ namespace FalconMVC.Managers
             public string Name { get; set; }
         }
 
+        public List<string> ReadIpsFromFile();
+        public void WriteIpsToFile(List<string> ips);
+        public Task AssignPlayersToIdsAsync();
+
     }
 }

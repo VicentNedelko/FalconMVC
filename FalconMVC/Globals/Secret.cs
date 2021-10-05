@@ -12,6 +12,7 @@ namespace FalconMVC.Globals
         public static string GAWithThMonitor { get; set; } = "notification.txt";
         public static string GAList { get; set; } = "gaList.json";
         public static string GAThList { get; set; } = "gaThList.json";
+        public static string HeosIps { get; set; } = "heosIps.json";
         public static long GIRAChatId { get; } = 481679093;
         public static string BotName { get; } = "@GIRA_Notification_Bot (1987317825)";
     }
