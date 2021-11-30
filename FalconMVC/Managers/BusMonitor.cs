@@ -226,7 +226,6 @@ namespace FalconMVC.Managers
                         break;
                 };
             };
-
         }
 
         public void StopNotificator()
