@@ -28,10 +28,9 @@ namespace FalconMVC.Managers
             if (bus is not null && bus.State == BusConnectionStatus.Connected)
             {
                 bus.Disconnect();
-                bus.Dispose();
             }
 
-            bus = new(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x0e57, false));
+            //bus = new(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x0e57, false));
             InterfaceName = (Interfaces.FirstOrDefault(i => i.IpAddress.ToString() == interfaceIp)).FriendlyName;
             Ip = interfaceIp;
         }
