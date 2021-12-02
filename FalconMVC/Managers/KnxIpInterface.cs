@@ -1,4 +1,5 @@
-﻿using Knx.Bus.Common.Configuration;
+﻿using Knx.Bus.Common;
+using Knx.Bus.Common.Configuration;
 using Knx.Bus.Common.KnxIp;
 using Knx.Falcon.Sdk;
 using System;
@@ -18,16 +19,19 @@ namespace FalconMVC.Managers
         public KnxIpInterface()
         {
             DiscoveryClient discoveryClient = new(adapterType: AdapterTypes.All);
-            Interfaces = discoveryClient.Discover();
+            IAsyncResult asyncResult = discoveryClient.BeginDiscover();
+            Interfaces = discoveryClient.EndDiscover(asyncResult);
         }
 
         public void GetNewInterface(string interfaceIp)
         {
-            if(bus is not null && bus.State == Knx.Bus.Common.BusConnectionStatus.Connected)
+            if (bus is not null && bus.State == BusConnectionStatus.Connected)
             {
                 bus.Disconnect();
+                bus.Dispose();
             }
-            bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x057, false));
+
+            bus = new(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x0e57, false));
             InterfaceName = (Interfaces.FirstOrDefault(i => i.IpAddress.ToString() == interfaceIp)).FriendlyName;
             Ip = interfaceIp;
         }
@@ -38,14 +42,24 @@ namespace FalconMVC.Managers
             bus = new Bus(new KnxIpTunnelingConnectorParameters(interfaceIp, 0x0e57, false));
             using (bus)
             {
-                bus.Connect();
-                if (bus.CheckCommunication() == Knx.Bus.Common.CheckCommunicationResult.Ok)
+                if (bus.State != BusConnectionStatus.Connected)
                 {
-                    return true;
+                    try
+                    {
+                        bus.Connect();
+                        if (bus.CheckCommunication() == CheckCommunicationResult.Ok)
+                        {
+                            bus.Disconnect();
+                            return true;
+                        }
+                    }
+                    catch (Exception)
+                    {
+                        return false;
+                    }
                 }
-                bus.Disconnect();
-                return false;
             }
+            return false;
         }
     }
 }

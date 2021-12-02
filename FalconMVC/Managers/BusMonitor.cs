@@ -40,7 +40,7 @@ namespace FalconMVC.Managers
             GaThList = new List<GAwithThreshold>();
             GAList = new List<GA>();
             using StreamReader srTh = new(Path.Combine(_env.WebRootPath, Secret.GAThList));
-            GaThList =  JsonSerializer.Deserialize<List<GAwithThreshold>>(srTh.ReadToEnd());
+            GaThList = JsonSerializer.Deserialize<List<GAwithThreshold>>(srTh.ReadToEnd());
             using StreamReader sr = new(Path.Combine(_env.WebRootPath, Secret.GAList));
             GAList = JsonSerializer.Deserialize<List<GA>>(sr.ReadToEnd());
         }
@@ -48,7 +48,7 @@ namespace FalconMVC.Managers
         public InterfaceVM GetInterfaceData()
         {
             InterfaceVM interfaceVM;
-            if(_connection.Ip is not null)
+            if (_connection.Ip is not null)
             {
                 interfaceVM = new InterfaceVM
                 {
@@ -77,21 +77,23 @@ namespace FalconMVC.Managers
                 sw.Write(string.Empty);
                 sw.Close();
             }
-            if(_connection.bus.State != BusConnectionStatus.Connected)
-            {
-                _connection.bus.Connect();
-            }
+            using (_connection.bus)
+                if (_connection.bus.CheckCommunication() != CheckCommunicationResult.Ok)
+                {
+                    _connection.bus.Connect();
+                }
             _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
         }
 
         public void Stop()
         {
+            _connection.bus.Disconnect();
             _connection.bus.GroupValueReceived -= Bus_GroupValueReceived;
         }
 
         public string GetInterfaceInfo()
         {
-            if(_connection.bus.State == BusConnectionStatus.Connected)
+            if (_connection.bus.State == BusConnectionStatus.Connected)
             {
                 return _connection.bus.GetLocalConfiguration().ToString();
             }
@@ -113,7 +115,7 @@ namespace FalconMVC.Managers
 
         private void Bus_GroupValueReceived(GroupValueEventArgs obj)
         {
-            if(GAList.Any(ga => ga.GAddress == obj.Address.ToString()))
+            if (GAList.Any(ga => ga.GAddress == obj.Address.ToString()))
             {
                 var gaVerified = GAList.First(ga => ga.GAddress == obj.Address.ToString());
                 var convertedValueFull = gaVerified.GType switch
@@ -137,7 +139,7 @@ namespace FalconMVC.Managers
             using StreamWriter sw = new(Path.Combine(_env.WebRootPath, Secret.GAWithThMonitor));
             sw.Write(string.Empty);
             sw.Close();
-            if(_connection.bus.State != BusConnectionStatus.Connected)
+            if (_connection.bus.State != BusConnectionStatus.Connected)
             {
                 _connection.bus.Connect();
             }
@@ -147,14 +149,14 @@ namespace FalconMVC.Managers
         private void Bus_GroupValueReceivedNotify(GroupValueEventArgs obj)
         {
             // StartReceiving();  ?
-            if(GaThList.Any(gaTh => gaTh.GAddress == obj.Address))
+            if (GaThList.Any(gaTh => gaTh.GAddress == obj.Address))
             {
                 var processedValue = GaThList.First(gaTh => gaTh.GAddress == obj.Address);
                 switch (processedValue.GType)
                 {
                     case DptType.Temperature:
                         var valueToCheckTemp = new Dpt9().ToTypedValue(obj.Value);
-                        if(((float)processedValue.ThresholdMax <= valueToCheckTemp
+                        if (((float)processedValue.ThresholdMax <= valueToCheckTemp
                             || (float)processedValue.ThresholdMin > valueToCheckTemp)
                             && !processedValue.IsCheck)
                         {
@@ -163,7 +165,7 @@ namespace FalconMVC.Managers
                             var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
                             GaThList[ind].IsCheck = true;
                         }
-                        else if(((float)processedValue.ThresholdMax > valueToCheckTemp
+                        else if (((float)processedValue.ThresholdMax > valueToCheckTemp
                             && (float)processedValue.ThresholdMin < valueToCheckTemp)
                             && processedValue.IsCheck)
                         {
@@ -173,7 +175,7 @@ namespace FalconMVC.Managers
                         break;
                     case DptType.Percent:
                         var valueToCheckPercent = new Dpt5().ToTypedValue(obj.Value);
-                        if(((byte)processedValue.ThresholdMax <= valueToCheckPercent
+                        if (((byte)processedValue.ThresholdMax <= valueToCheckPercent
                             || (byte)processedValue.ThresholdMin > valueToCheckPercent)
                             && !processedValue.IsCheck)
                         {
@@ -182,7 +184,7 @@ namespace FalconMVC.Managers
                             var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
                             GaThList[ind].IsCheck = true;
                         }
-                        else if(((byte)processedValue.ThresholdMax > valueToCheckPercent
+                        else if (((byte)processedValue.ThresholdMax > valueToCheckPercent
                             && (byte)processedValue.ThresholdMin < valueToCheckPercent)
                             && processedValue.IsCheck)
                         {
@@ -199,7 +201,7 @@ namespace FalconMVC.Managers
                             var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
                             GaThList[ind].IsCheck = true;
                         }
-                        else if(!valueToCheckSwitch && processedValue.IsCheck)
+                        else if (!valueToCheckSwitch && processedValue.IsCheck)
                         {
                             var ind = GaThList.FindIndex(ga => ga.Id == processedValue.Id);
                             GaThList[ind].IsCheck = false;

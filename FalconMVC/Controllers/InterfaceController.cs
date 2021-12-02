@@ -48,7 +48,7 @@ namespace FalconMVC.Controllers
             {
                 Ip = _knxInterface.Ip,
                 FriendlyName = _knxInterface.InterfaceName,
-                State = _knxInterface.bus.State.ToString(),
+                State = "Not connected",
             };
             return View(i);
         }
