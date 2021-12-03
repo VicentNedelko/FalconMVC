@@ -54,8 +54,8 @@ namespace FalconMVC.Managers
                 {
                     Ip = _connection.Ip,
                     FriendlyName = _connection.InterfaceName,
-                    State = _connection.bus.State.ToString(),
                 };
+                interfaceVM.State = "Test";
             }
             else
             {
@@ -75,35 +75,23 @@ namespace FalconMVC.Managers
             using StreamWriter sw = new(Path.Combine(_env.WebRootPath, Secret.GAMonitor), false);
             sw.Write(string.Empty);
             sw.Close();
-            if (_connection.bus is null)
-            {
-                using (_connection.bus = new(new KnxIpTunnelingConnectorParameters(_connection.Ip, 0x0e57, false)))
-                {
-                    _connection.bus.Connect();
-                    _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
-                }
-            }
-            else
-            {
-                using (_connection.bus)
-                {
-                    if (_connection.bus.State != BusConnectionStatus.Connected)
-                    {
-                        _connection.bus.Connect();
-                        _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
-                    }
-                    else
-                    {
-                        _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
-                    }
-                }
-            }
+            _connection.bus = new(new KnxIpTunnelingConnectorParameters(_connection.Ip, 0x0e57, false));
+            _connection.bus.Connect();
+            _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
+            _connection.bus.StateChanged += Bus_StateChanged;
+            _bot.SendMessageAsync($"Bus state - {_connection.bus.State}; Subscribe to GA_Sbc.");
+        }
+
+        private void Bus_StateChanged(BusConnectionStatus obj)
+        {
+            throw new NotImplementedException();
         }
 
         public void Stop()
         {
-            _connection.bus.Disconnect();
             _connection.bus.GroupValueReceived -= Bus_GroupValueReceived;
+            _connection.bus.Dispose();
+            _bot.SendMessageAsync($"Unsubscribe from GA_Sbc.");
         }
 
         public string GetInterfaceInfo()
