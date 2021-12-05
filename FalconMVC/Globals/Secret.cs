@@ -9,6 +9,7 @@ namespace FalconMVC.Globals
     {
         public static string Tbot { get; } = "1987317825:AAGWK_-w_WN5eWf3YxYrwLyYARcx19c4zhU";
         public static string GAMonitor { get; set; } = "monitoring.txt";
+        public static string GaArchive { get; set; } = "gaArchive.json";
         public static string GAWithThMonitor { get; set; } = "notification.txt";
         public static string GAList { get; set; } = "gaList.json";
         public static string GAThList { get; set; } = "gaThList.json";

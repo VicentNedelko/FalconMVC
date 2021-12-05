@@ -78,13 +78,7 @@ namespace FalconMVC.Managers
             _connection.bus = new(new KnxIpTunnelingConnectorParameters(_connection.Ip, 0x0e57, false));
             _connection.bus.Connect();
             _connection.bus.GroupValueReceived += Bus_GroupValueReceived;
-            _connection.bus.StateChanged += Bus_StateChanged;
             _bot.SendMessageAsync($"Bus state - {_connection.bus.State}; Subscribe to GA_Sbc.");
-        }
-
-        private void Bus_StateChanged(BusConnectionStatus obj)
-        {
-            throw new NotImplementedException();
         }
 
         public void Stop()
@@ -129,8 +123,9 @@ namespace FalconMVC.Managers
                     DptType.Switch => new Dpt2().ToTypedValue(obj.Value).ToString(),
                     _ => obj.Value.ToString(),
                 };
-                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, Secret.GAMonitor), true);
-                streamWriter.WriteLine($"{obj.Address} - {convertedValueFull} - {DateTime.Now}");
+                using StreamWriter streamWriter = new(Path.Combine(_env.WebRootPath, Secret.GaArchive, DateTime.Now.ToShortDateString()), true);
+                var jsonData = JsonSerializer.Serialize(obj);
+                streamWriter.Write(jsonData);
                 streamWriter.Flush();
                 streamWriter.Close();
             }
